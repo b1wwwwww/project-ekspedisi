@@ -28,8 +28,9 @@ class ProfileTest extends TestCase
         $response = $this
             ->actingAs($user)
             ->patch('/profile', [
-                'name' => 'Test User',
+                'nama' => 'Test User',
                 'email' => 'test@example.com',
+                'telepon' => '081234567890',
             ]);
 
         $response
@@ -38,27 +39,32 @@ class ProfileTest extends TestCase
 
         $user->refresh();
 
-        $this->assertSame('Test User', $user->name);
+        $this->assertSame('Test User', $user->nama);
         $this->assertSame('test@example.com', $user->email);
-        $this->assertNull($user->email_verified_at);
+        $this->assertSame('081234567890', $user->telepon);
     }
 
-    public function test_email_verification_status_is_unchanged_when_the_email_address_is_unchanged(): void
+    public function test_profile_information_can_be_updated_without_email_and_phone(): void
     {
         $user = User::factory()->create();
 
         $response = $this
             ->actingAs($user)
             ->patch('/profile', [
-                'name' => 'Test User',
-                'email' => $user->email,
+                'nama' => 'Test User',
+                'email' => null,
+                'telepon' => null,
             ]);
 
         $response
             ->assertSessionHasNoErrors()
             ->assertRedirect('/profile');
 
-        $this->assertNotNull($user->refresh()->email_verified_at);
+        $user->refresh();
+
+        $this->assertSame('Test User', $user->nama);
+        $this->assertNull($user->email);
+        $this->assertNull($user->telepon);
     }
 
     public function test_user_can_delete_their_account(): void
