@@ -9,6 +9,7 @@ class ZonaTarif extends Model
     protected $table = 'zona_tarif';
 
     protected $fillable = [
+        'kode_zona',
         'nama_zona',
         'harga_per_kg',
         'cakupan_wilayah',
