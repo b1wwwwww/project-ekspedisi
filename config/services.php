@@ -35,4 +35,10 @@ return [
         ],
     ],
 
+    // konfigurasi untuk layanan pusat wilayah 
+    'pusat_wilayah' => [
+    'url' => env('PUSAT_WILAYAH_URL'),
+    'api_key' => env('PUSAT_WILAYAH_API_KEY'),
+    ],
+
 ];
