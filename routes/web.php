@@ -4,6 +4,8 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PelangganController;
 use App\Http\Controllers\PaketController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Admin\DashboardController;
+
 
 Route::get('/', function () {
     return view('welcome');
@@ -14,6 +16,11 @@ Route::get('/dashboard', function () {
 })->middleware('auth')->name('dashboard');
 
 Route::middleware('auth')->group(function () {
+
+    // Dashboard Admin
+    Route::get('/admin', [DashboardController::class, 'index'])
+    ->name('admin.dashboard');
+
     // Profile
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
@@ -38,6 +45,7 @@ Route::middleware('auth')->group(function () {
         // Menghitung tarif paket berdasarkan berat dan zona
     Route::get('/paket/hitung-tarif', [PaketController::class, 'hitungTarif'])
         ->name('paket.hitung-tarif');
+
 });
 
 require __DIR__.'/auth.php';
