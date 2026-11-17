@@ -1,8 +1,9 @@
 <?php
 
 use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\PelangganController;
-use App\Http\Controllers\PaketController;
+use App\Http\Controllers\Admin\PelangganController;
+use App\Http\Controllers\Admin\PaketController;
+use App\Http\Controllers\Admin\PenugasanKurirController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\DashboardController;
 
@@ -46,6 +47,18 @@ Route::middleware('auth')->group(function () {
     Route::get('/paket/hitung-tarif', [PaketController::class, 'hitungTarif'])
         ->name('paket.hitung-tarif');
 
+        // Halaman Penugasan Kurir
+    Route::get('/admin/penugasan-kurir', [PenugasanKurirController::class, 'index'])
+        ->name('admin.penugasan-kurir.index');
+
+        // Menyimpan penugasan kurir untuk paket
+    Route::post('/admin/penugasan-kurir', [PenugasanKurirController::class, 'store'])
+        ->name('admin.penugasan-kurir.store');
+
+        // Mengubah status paket menjadi "Transit"
+        // pake patch hanya memperbarui sebagian data paket, yaitu statusnya.
+    Route::patch('/paket/{paket}/transit', [PaketController::class, 'ubahKeTransit'])
+        ->name('paket.transit'); 
 });
 
 require __DIR__.'/auth.php';

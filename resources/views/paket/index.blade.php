@@ -5,6 +5,38 @@
 
 @section('content')
 
+    {{-- Notifikasi Berhasil --}}
+    @if (session('success'))
+        <div id="alert-success"
+            class="mb-5 flex items-center gap-3 rounded-xl border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700">
+
+            <svg class="h-5 w-5 shrink-0" fill="none"
+                stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M5 13l4 4L19 7" />
+            </svg>
+
+            <span>{{ session('success') }}</span>
+        </div>
+    @endif
+
+    {{-- Notifikasi Gagal --}}
+    @if ($errors->has('status'))
+        <div id="alert-error"
+            class="mb-5 flex items-center gap-3 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+
+            <svg class="h-5 w-5 shrink-0" fill="none"
+                stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M6 18L18 6M6 6l12 12" />
+            </svg>
+
+            <span>{{ $errors->first('status') }}</span>
+        </div>
+    @endif
+
     {{-- Header Halaman --}}
     <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-6">
         <div>
@@ -66,7 +98,7 @@
     <div class="grid grid-cols-1 xl:grid-cols-12 gap-6 items-start">
 
         {{-- Kolom Kiri: Daftar Paket --}}
-        <div class="xl:col-span-8 bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
+        <div class="xl:col-span-9 min-w-0 bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
             <div class="px-5 py-4 border-b border-slate-100">
                 <h2 class="text-base font-bold text-[#0A3656]">
                     Data Paket Ekspedisi
@@ -86,6 +118,7 @@
                             <th class="px-5 py-3 font-semibold">Berat Tagih</th>
                             <th class="px-5 py-3 font-semibold">Ongkir</th>
                             <th class="px-5 py-3 font-semibold">Status</th>
+                            <th class="px-5 py-3 font-semibold text-center">Aksi</th>
                         </tr>
                     </thead>
 
@@ -151,10 +184,33 @@
                                     </span>
                                 </td>
 
+
+                                {{-- Aksi Paket --}}
+                                <td class="px-5 py-4 whitespace-nowrap text-center" onclick="event.stopPropagation()">
+                                @if ($item->status === 'Diterima')
+                                    <form id="form-transit-{{ $item->id }}"
+                                        action="{{ route('paket.transit', $item->id) }}"
+                                        method="POST">
+                                        @csrf
+                                        @method('PATCH')
+
+                                        <button
+                                            type="button"
+                                            onclick="bukaModalTransit('form-transit-{{ $item->id }}')"
+                                            class="px-2.5 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-[11px] font-semibold rounded-lg transition">
+                                            Transit
+                                        </button>
+                                    </form>
+                                @else
+                                    <span class="text-xs text-slate-400">-</span>
+                                @endif
+
+                                </td>
+
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="6" class="px-5 py-12 text-center">
+                                <td colspan="7" class="px-5 py-12 text-center">
                                     <p class="font-semibold text-slate-600">
                                         Belum ada data paket.
                                     </p>
@@ -177,7 +233,7 @@
         </div>
 
         {{-- Kolom Kanan: Detail Riwayat Resi --}}
-        <div class="xl:col-span-4 bg-white border border-slate-200 rounded-xl shadow-sm p-5">
+        <div class="xl:col-span-3 min-w-0 bg-white border border-slate-200 rounded-xl shadow-sm p-5">
 
             {{-- Header Detail Resi --}}
             <div class="pb-4 mb-5 border-b border-slate-100">
@@ -378,8 +434,57 @@
         </div>
     </div>
 
+    {{-- Modal Konfirmasi Transit --}}
+    <div id="modal-transit"
+        class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-900/50 backdrop-blur-sm px-4">
+
+        <div class="bg-white w-full max-w-md rounded-2xl shadow-xl p-6">
+
+            <div class="flex items-center gap-3 mb-4">
+                <div class="w-11 h-11 rounded-full bg-blue-100 flex items-center justify-center">
+                    <svg class="w-6 h-6 text-blue-600" fill="none"
+                        stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M13 16h-1v-4h-1m1-4h.01M12 18a6 6 0 100-12 6 6 0 000 12z" />
+                    </svg>
+                </div>
+
+                <div>
+                    <h2 class="text-lg font-bold text-slate-800">
+                        Konfirmasi Perubahan Status
+                    </h2>
+                    <p class="text-xs text-slate-500">
+                        Periksa kembali sebelum melanjutkan.
+                    </p>
+                </div>
+            </div>
+
+            <p class="text-sm text-slate-600 mb-6">
+                Apakah kamu yakin ingin mengubah status paket ini menjadi
+                <span class="font-semibold text-blue-600">Transit</span>?
+            </p>
+
+            <div class="flex justify-end gap-3">
+                <button type="button"
+                    onclick="tutupModalTransit()"
+                    class="px-4 py-2 text-sm font-semibold text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-lg transition">
+                    Batal
+                </button>
+
+                <button type="button"
+                    onclick="konfirmasiTransit()"
+                    class="px-4 py-2 text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition">
+                    Ya, Ubah Status
+                </button>
+            </div>
+
+        </div>
+    </div>
+
     @push('scripts')
         @vite('resources/js/pages/paket-index.js')
     @endpush
+
 
 @endsection

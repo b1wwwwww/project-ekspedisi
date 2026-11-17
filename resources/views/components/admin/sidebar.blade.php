@@ -28,32 +28,32 @@
             <div class="space-y-1">
 
                 <a href="{{ url('/admin') }}"
-                   class="block rounded-lg px-3 py-2.5 text-sm font-medium transition hover:bg-[#1D70A2]">
+                    class="block rounded-lg px-3 py-2.5 text-sm font-medium transition hover:bg-[#1D70A2]">
                     Dashboard
                 </a>
 
                 <a href="{{ route('paket.create') }}"
-                   class="block rounded-lg px-3 py-2.5 text-sm font-medium transition hover:bg-[#1D70A2]">
+                    class="block rounded-lg px-3 py-2.5 text-sm font-medium transition hover:bg-[#1D70A2]">
                     Input Paket
                 </a>
 
                 <a href="{{ route('paket.index') }}"
-                   class="block rounded-lg px-3 py-2.5 text-sm font-medium transition hover:bg-[#1D70A2]">
+                    class="block rounded-lg px-3 py-2.5 text-sm font-medium transition hover:bg-[#1D70A2]">
                     Daftar Paket
                 </a>
 
-                <a href="#"
-                   class="block rounded-lg px-3 py-2.5 text-sm font-medium text-blue-100 transition hover:bg-[#1D70A2]">
+                <a href="{{ route('admin.penugasan-kurir.index') }}"
+                    class="block rounded-lg px-3 py-2.5 text-sm font-medium text-blue-100 transition hover:bg-[#1D70A2]">
                     Penugasan Kurir
                 </a>
 
                 <a href="#"
-                   class="block rounded-lg px-3 py-2.5 text-sm font-medium text-blue-100 transition hover:bg-[#1D70A2]">
+                    class="block rounded-lg px-3 py-2.5 text-sm font-medium text-blue-100 transition hover:bg-[#1D70A2]">
                     Manajemen Retur
                 </a>
 
                 <a href="#"
-                   class="block rounded-lg px-3 py-2.5 text-sm font-medium text-blue-100 transition hover:bg-[#1D70A2]">
+                    class="block rounded-lg px-3 py-2.5 text-sm font-medium text-blue-100 transition hover:bg-[#1D70A2]">
                     Setoran COD
                 </a>
 

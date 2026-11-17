@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Admin;
 
+use App\Http\Controllers\Controller;
 use App\Models\Paket;
 use App\Models\Pelanggan;
 use Illuminate\Http\Request;
@@ -17,7 +18,7 @@ class PaketController extends Controller
         // Mengambil data paket beserta relasi yang dibutuhkan.
         $query = Paket::with([
             'pengirim',
-            'kurir',
+            'kurir.pengguna',
             'zonaTarif',
             'riwayat' => function ($query){ // mengambil catatan perubahan status paket.
                 $query->orderBy('created_at', 'desc'); // mengurutkan dri yg terbaru
@@ -325,5 +326,36 @@ class PaketController extends Controller
             'ongkir' => $ongkir,
             'biaya_cod' => $biayaCod,
         ]);
+    }
+
+
+    public function ubahKeTransit(Paket $paket)
+    {
+        // Memastikan paket masih berstatus Diterima.
+        if ($paket->status !== 'Diterima') {
+            return back()->withErrors([
+                'status' => 'Paket tidak dapat diubah ke status Transit.',
+            ]);
+        }
+
+        DB::transaction(function () use ($paket) {
+
+            $statusSebelumnya = $paket->status;
+
+            // Mengubah status paket.
+            $paket->update([
+                'status' => 'Transit',
+            ]);
+
+            // Menyimpan riwayat perubahan status.
+            $paket->riwayat()->create([
+                'pengguna_id' => auth()->id(),
+                'status_dari' => $statusSebelumnya,
+                'status' => 'Transit',
+                'catatan' => 'Paket telah diperiksa dan siap untuk ditugaskan kepada kurir.',
+            ]);
+        });
+
+        return back()->with('success', 'Status paket berhasil diubah menjadi Transit.');
     }
 }
