@@ -1,398 +1,491 @@
-<x-app-layout>
-    <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            Input Paket
-        </h2>
-    </x-slot>
+@extends('layouts.admin')
 
-    <div class="py-8">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white shadow-sm sm:rounded-lg p-6">
-                <h3 class="text-lg font-semibold">
-                    Form Penerimaan Paket
-                </h3>
+@section('title', 'Input Paket')
+@section('breadcrumb', 'Input Paket & Buat Resi')
 
-            <form action="{{ route('paket.store') }}" method="POST">
-                @csrf
-                <div class="mt-6">
-                    <h4 class="text-md font-semibold mb-4">
+@section('content')
+
+    {{-- JUDUL HALAMAN --}}
+    <div class="mb-6">
+        <h1 class="text-2xl font-bold text-[#0A3656]">
+            Input Paket &amp; Buat Resi
+        </h1>
+
+        <p class="mt-1 text-sm text-slate-500">
+            Lengkapi data pengirim, penerima, dan paket.
+            Ongkir &amp; biaya COD dihitung otomatis sesuai zona tujuan.
+        </p>
+    </div>
+
+    {{-- RINGKASAN ERROR VALIDASI --}}
+    @if ($errors->any() && !($errors->count() === 1 && $errors->has('zona_manual')))
+        <div class="mb-6 rounded-xl border border-red-200 bg-red-50 p-4">
+            <p class="mb-1 text-sm font-semibold text-red-700">
+                Periksa kembali data berikut:
+            </p>
+
+            <ul class="list-disc space-y-0.5 pl-5 text-sm text-red-600">
+                @foreach ($errors->all() as $error)
+                    @continue($error === $errors->first('zona_manual'))
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
+
+    <form action="{{ route('paket.store') }}"
+            method="POST"
+            id="form-input-paket">
+
+        @csrf
+
+        <div class="grid grid-cols-1 items-start gap-6 xl:grid-cols-12">
+
+            {{-- ================================================= --}}
+            {{-- KOLOM KIRI: FORMULIR PENGIRIMAN --}}
+            {{-- ================================================= --}}
+
+            <div class="space-y-6 xl:col-span-8">
+
+                <div class="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+
+                    <h2 class="mb-5 border-b border-slate-100 pb-4 text-base font-bold text-[#0A3656]">
+                        Formulir Pengiriman Paket Baru
+                    </h2>
+
+                    {{-- A. DATA PENGIRIM --}}
+
+                    <h3 class="mb-3 text-xs font-bold uppercase tracking-wider text-slate-500">
                         A. Data Pengirim
-                    </h4>
+                    </h3>
 
-                    <div class="mb-4">
-                        <label for="telepon_pengirim" class="block mb-2">
-                            Nomor Telepon Pengirim
-                        </label>
+                    <div class="mb-3 grid grid-cols-1 gap-4 md:grid-cols-2">
 
-                        <input
-                            type="text"
-                            id="telepon_pengirim"
-                            name="telepon_pengirim"
-                            class="border-gray-300 rounded-md w-full"
-                            placeholder="Masukkan nomor telepon pengirim"
-                        >
+                        <div>
+                            <label for="nama_pengirim"
+                                    class="mb-1.5 block text-[13px] font-semibold text-slate-700">
+                                Nama Pengirim <span class="text-red-500">*</span>
+                            </label>
+
+                            <input type="text"
+                                    id="nama_pengirim"
+                                    name="nama_pengirim"
+                                    value="{{ old('nama_pengirim') }}"
+                                    class="w-full rounded-lg border px-3 py-2 text-sm outline-none focus:border-[#1D70A2] focus:ring-2 focus:ring-[#1D70A2]/30 {{ $errors->has('nama_pengirim') ? 'border-red-400' : 'border-slate-300' }}"
+                                    placeholder="Nama pengirim / toko">
+
+                            @error('nama_pengirim')
+                                <p class="mt-1 text-[12px] text-red-600">
+                                    {{ $message }}
+                                </p>
+                            @enderror
+                        </div>
+
+                        <div>
+                            <label for="telepon_pengirim"
+                                    class="mb-1.5 block text-[13px] font-semibold text-slate-700">
+                                No. Telepon Pengirim <span class="text-red-500">*</span>
+                            </label>
+
+                            <input type="text"
+                                    id="telepon_pengirim"
+                                    name="telepon_pengirim"
+                                    value="{{ old('telepon_pengirim') }}"
+                                    class="w-full rounded-lg border px-3 py-2 text-sm outline-none focus:border-[#1D70A2] focus:ring-2 focus:ring-[#1D70A2]/30 {{ $errors->has('telepon_pengirim') ? 'border-red-400' : 'border-slate-300' }}"
+                                    placeholder="08xxxxxxxxxx">
+
+                            @error('telepon_pengirim')
+                                <p class="mt-1 text-[12px] text-red-600">
+                                    {{ $message }}
+                                </p>
+                            @enderror
+                        </div>
+
                     </div>
 
-                    <div class="mb-4">
-                        <label for="nama_pengirim" class="block mb-2">
-                            Nama Pengirim
-                        </label>
-
-                        <input
-                            type="text"
-                            id="nama_pengirim"
-                            name="nama_pengirim"
-                            class="border-gray-300 rounded-md w-full"
-                            placeholder="Masukkan nama pengirim"
-                        >
-                    </div>
-
-                    <div class="mb-4">
-                        <label for="alamat_pengirim" class="block mb-2">
+                    <div class="mb-5">
+                        <label for="alamat_pengirim"
+                                class="mb-1.5 block text-[13px] font-semibold text-slate-700">
                             Alamat Pengirim
+                            <span class="font-normal text-slate-400">(opsional)</span>
                         </label>
 
-                        <textarea
-                            id="alamat_pengirim"
-                            name="alamat_pengirim"
-                            class="border-gray-300 rounded-md w-full"
-                            placeholder="Masukkan alamat pengirim"
-                        ></textarea>
+                        <textarea id="alamat_pengirim"
+                                    name="alamat_pengirim"
+                                    rows="2"
+                                    class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-[#1D70A2] focus:ring-2 focus:ring-[#1D70A2]/30"
+                                    placeholder="Alamat pengirim">{{ old('alamat_pengirim') }}</textarea>
+
+                        @error('alamat_pengirim')
+                            <p class="mt-1 text-[12px] text-red-600">
+                                {{ $message }}
+                            </p>
+                        @enderror
                     </div>
-                </div>
 
 
-                <div class="mt-8 border-t pt-6">
-                    <h4 class="text-md font-semibold mb-4">
+                    {{-- B. DATA PENERIMA --}}
+
+                    <h3 class="mb-3 text-xs font-bold uppercase tracking-wider text-slate-500">
                         B. Data Penerima
-                    </h4>
+                    </h3>
 
-                    <div class="mb-4">
-                        <label for="penerima_nama" class="block mb-2">
-                            Nama Penerima
-                        </label>
+                    <div class="mb-3 grid grid-cols-1 gap-4 md:grid-cols-2">
 
-                        <input
-                            type="text"
-                            id="penerima_nama"
-                            name="penerima_nama"
-                            class="border-gray-300 rounded-md w-full"
-                            placeholder="Masukkan nama penerima"
-                        >
+                        <div>
+                            <label for="penerima_nama"
+                                    class="mb-1.5 block text-[13px] font-semibold text-slate-700">
+                                Nama Penerima <span class="text-red-500">*</span>
+                            </label>
+
+                            <input type="text"
+                                    id="penerima_nama"
+                                    name="penerima_nama"
+                                    value="{{ old('penerima_nama') }}"
+                                    class="w-full rounded-lg border px-3 py-2 text-sm outline-none focus:border-[#1D70A2] focus:ring-2 focus:ring-[#1D70A2]/30 {{ $errors->has('penerima_nama') ? 'border-red-400' : 'border-slate-300' }}"
+                                    placeholder="Nama penerima">
+
+                            @error('penerima_nama')
+                                <p class="mt-1 text-[12px] text-red-600">
+                                    {{ $message }}
+                                </p>
+                            @enderror
+                        </div>
+
+                        <div>
+                            <label for="penerima_telepon"
+                                    class="mb-1.5 block text-[13px] font-semibold text-slate-700">
+                                No. Telepon Penerima <span class="text-red-500">*</span>
+                            </label>
+
+                            <input type="text"
+                                    id="penerima_telepon"
+                                    name="penerima_telepon"
+                                    value="{{ old('penerima_telepon') }}"
+                                    class="w-full rounded-lg border px-3 py-2 text-sm outline-none focus:border-[#1D70A2] focus:ring-2 focus:ring-[#1D70A2]/30 {{ $errors->has('penerima_telepon') ? 'border-red-400' : 'border-slate-300' }}"
+                                    placeholder="08xxxxxxxxxx">
+
+                            @error('penerima_telepon')
+                                <p class="mt-1 text-[12px] text-red-600">
+                                    {{ $message }}
+                                </p>
+                            @enderror
+                        </div>
+
                     </div>
 
-                    <div class="mb-4">
-                        <label for="penerima_telepon" class="block mb-2">
-                            Nomor Telepon Penerima
+                    <div class="mb-5">
+                        <label for="penerima_alamat"
+                                class="mb-1.5 block text-[13px] font-semibold text-slate-700">
+                            Alamat Lengkap Penerima <span class="text-red-500">*</span>
                         </label>
 
-                        <input
-                            type="text"
-                            id="penerima_telepon"
-                            name="penerima_telepon"
-                            class="border-gray-300 rounded-md w-full"
-                            placeholder="Masukkan nomor telepon penerima"
-                        >
+                        <textarea id="penerima_alamat"
+                                    name="penerima_alamat"
+                                    rows="2"
+                                    class="w-full rounded-lg border px-3 py-2 text-sm outline-none focus:border-[#1D70A2] focus:ring-2 focus:ring-[#1D70A2]/30 {{ $errors->has('penerima_alamat') ? 'border-red-400' : 'border-slate-300' }}"
+                                    placeholder="Jl. ..., Kec. ..., Kota ...">{{ old('penerima_alamat') }}</textarea>
+
+                        @error('penerima_alamat')
+                            <p class="mt-1 text-[12px] text-red-600">
+                                {{ $message }}
+                            </p>
+                        @enderror
                     </div>
 
-                    <div class="mb-4">
-                        <label for="penerima_alamat" class="block mb-2">
-                            Alamat Lengkap Penerima
-                        </label>
 
-                        <textarea
-                            id="penerima_alamat"
-                            name="penerima_alamat"
-                            class="border-gray-300 rounded-md w-full"
-                            placeholder="Masukkan alamat lengkap penerima"
-                        ></textarea>
+                    {{-- KOTA TUJUAN DAN STATUS ZONA --}}
+
+                    <div class="mb-5 grid grid-cols-1 gap-4 rounded-xl border border-slate-200 bg-slate-50 p-4 md:grid-cols-2">
+
+                        <div>
+                            <label for="kota_tujuan"
+                                    class="mb-1.5 block text-[13px] font-semibold text-slate-700">
+                                Kota / Kabupaten Tujuan <span class="text-red-500">*</span>
+                            </label>
+
+                            <input type="text"
+                                    id="kota_tujuan"
+                                    name="kota_tujuan"
+                                    value="{{ old('kota_tujuan') }}"
+                                    class="w-full rounded-lg border px-3 py-2 text-sm outline-none focus:border-[#1D70A2] focus:ring-2 focus:ring-[#1D70A2]/30 {{ $errors->has('kota_tujuan') ? 'border-red-400' : 'border-slate-300' }}"
+                                    placeholder="Contoh: Kota Bandung">
+
+                            @error('kota_tujuan')
+                                <p class="mt-1 text-[12px] text-red-600">
+                                    {{ $message }}
+                                </p>
+                            @enderror
+                        </div>
+
+                        <div>
+                            <label class="mb-1.5 block text-[13px] font-semibold text-slate-700">
+                                Status Zona
+                            </label>
+
+                            <div class="flex h-[38px] items-center">
+                                <span id="status-zona-badge"
+                                        class="rounded px-2.5 py-1 text-[12px] font-semibold {{ $errors->has('zona_manual') ? 'bg-amber-100 text-amber-800' : 'bg-slate-100 text-slate-500' }}">
+                                    {{ $errors->has('zona_manual') ? 'Manual (Perlu Verifikasi)' : 'Menunggu Perhitungan' }}
+                                </span>
+                            </div>
+
+                            <p id="zona-helper-text"
+                                class="mt-1.5 text-[11px] text-slate-500">
+                                Zona dideteksi otomatis lewat API Pusat Wilayah berdasarkan kota tujuan.
+                            </p>
+                        </div>
+
                     </div>
 
-                    <div class="mb-4">
-                        <label for="kota_tujuan" class="block mb-2">
-                            Kota Tujuan
-                        </label>
 
-                        <input
-                            type="text"
-                            id="kota_tujuan"
-                            name="kota_tujuan"
-                            class="border-gray-300 rounded-md w-full"
-                            placeholder="Masukkan kota tujuan"
-                        >
-                    </div>
-                </div>
+                    {{-- C. INFORMASI PAKET --}}
 
-
-                <div class="mt-8 border-t pt-6">
-                    <h4 class="text-md font-semibold mb-4">
+                    <h3 class="mb-3 text-xs font-bold uppercase tracking-wider text-slate-500">
                         C. Informasi Paket
-                    </h4>
+                    </h3>
 
-                    <div class="mb-4">
-                        <label for="berat_kg" class="block mb-2">
-                            Berat Paket (kg)
-                        </label>
+                    <div class="grid grid-cols-1 gap-4 md:grid-cols-3">
 
-                        <input
-                            type="number"
-                            id="berat_kg"
-                            name="berat_kg"
-                            step="0.01"
-                            min="0.01"
-                            class="border-gray-300 rounded-md w-full"
-                            placeholder="Contoh: 2.5"
-                        >
-                    </div>
+                        <div>
+                            <label for="berat_kg"
+                                    class="mb-1.5 block text-[13px] font-semibold text-slate-700">
+                                Berat Aktual (kg) <span class="text-red-500">*</span>
+                            </label>
 
-                    <div class="mb-4">
-                        <label for="layanan" class="block mb-2">
-                            Jenis Layanan
-                        </label>
+                            <input type="number"
+                                    step="0.01"
+                                    min="0.01"
+                                    id="berat_kg"
+                                    name="berat_kg"
+                                    value="{{ old('berat_kg') }}"
+                                    class="w-full rounded-lg border px-3 py-2 text-sm outline-none focus:border-[#1D70A2] focus:ring-2 focus:ring-[#1D70A2]/30 {{ $errors->has('berat_kg') ? 'border-red-400' : 'border-slate-300' }}"
+                                    placeholder="Contoh: 2.5">
 
-                        <select
-                            id="layanan"
-                            name="layanan"
-                            class="border-gray-300 rounded-md w-full"
-                        >
-                            <option value="">-- Pilih Layanan --</option>
-                            <option value="Reguler">Reguler</option>
-                            <option value="Express">Express</option>
-                        </select>
-                    </div>
+                            <p class="mt-1 text-[11px] font-semibold text-[#1D70A2]">
+                                Dibulatkan ke atas (min 1 kg):
+                                <span id="berat-bulat-label">—</span>
+                            </p>
 
-                    <div class="mb-4">
-                        <label for="nilai_cod" class="block mb-2">
-                            Nilai COD (Opsional)
-                        </label>
+                            @error('berat_kg')
+                                <p class="mt-1 text-[12px] text-red-600">
+                                    {{ $message }}
+                                </p>
+                            @enderror
+                        </div>
 
-                        <input
-                            type="number"
-                            id="nilai_cod"
-                            name="nilai_cod"
-                            min="0"
-                            step="1000"
-                            value="0"
-                            class="border-gray-300 rounded-md w-full"
-                            placeholder="Masukkan nilai COD"
-                        >
+                        <div>
+                            <label for="layanan"
+                                    class="mb-1.5 block text-[13px] font-semibold text-slate-700">
+                                Jenis Layanan <span class="text-red-500">*</span>
+                            </label>
+
+                            <select id="layanan"
+                                    name="layanan"
+                                    class="w-full rounded-lg border px-3 py-2 text-sm outline-none focus:border-[#1D70A2] focus:ring-2 focus:ring-[#1D70A2]/30 {{ $errors->has('layanan') ? 'border-red-400' : 'border-slate-300' }}">
+
+                                <option value="" disabled {{ old('layanan') ? '' : 'selected' }}>
+                                    -- Pilih Layanan --
+                                </option>
+
+                                <option value="Reguler" {{ old('layanan') === 'Reguler' ? 'selected' : '' }}>
+                                    Reguler (Tarif Dasar)
+                                </option>
+
+                                <option value="Express" {{ old('layanan') === 'Express' ? 'selected' : '' }}>
+                                    Express (+50% dari Reguler)
+                                </option>
+
+                            </select>
+
+                            @error('layanan')
+                                <p class="mt-1 text-[12px] text-red-600">
+                                    {{ $message }}
+                                </p>
+                            @enderror
+                        </div>
+
+                        <div>
+                            <label for="nilai_cod"
+                                    class="mb-1.5 block text-[13px] font-semibold text-slate-700">
+                                Nilai Barang COD (Rp)
+                            </label>
+
+                            <input type="number"
+                                    min="0"
+                                    step="1000"
+                                    id="nilai_cod"
+                                    name="nilai_cod"
+                                    value="{{ old('nilai_cod', 0) }}"
+                                    class="w-full rounded-lg border px-3 py-2 text-sm outline-none focus:border-[#1D70A2] focus:ring-2 focus:ring-[#1D70A2]/30 {{ $errors->has('nilai_cod') ? 'border-red-400' : 'border-slate-300' }}">
+
+                            <p class="mt-1 text-[11px] text-slate-500">
+                                Isi &gt; 0 jika COD. Biarkan <b>0</b> jika Non-COD.
+                            </p>
+
+                            @error('nilai_cod')
+                                <p class="mt-1 text-[12px] text-red-600">
+                                    {{ $message }}
+                                </p>
+                            @enderror
+                        </div>
                     </div>
                 </div>
+            </div>
 
 
-                <div class="mt-8 border-t pt-6">
-                    <h4 class="text-md font-semibold mb-4">
-                        D. Ringkasan Tarif
-                    </h4>
+            {{-- ================================================= --}}
+            {{-- KOLOM KANAN: RINCIAN BIAYA --}}
+            {{-- ================================================= --}}
 
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="space-y-5 xl:col-span-4">
 
-                        <div>
-                            <label class="block mb-2">Zona Tujuan</label>
-                            <input
-                                type="text"
-                                id="ringkasan_zona"
-                                value="Menunggu perhitungan sistem"
-                                class="border-gray-300 rounded-md w-full bg-gray-100"
-                                disabled
-                            >
+                {{-- RINCIAN BIAYA DAN RESI --}}
+
+                <div class="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+
+                    <h2 class="mb-4 border-b border-slate-100 pb-4 text-base font-bold text-[#0A3656]">
+                        Rincian Biaya &amp; Resi
+                    </h2>
+
+                    <div class="mb-4 space-y-2.5 rounded-xl border border-slate-200 bg-slate-50 p-4 text-[13px]">
+
+                        <div class="flex justify-between gap-3">
+                            <span class="text-slate-500">Zona Tujuan:</span>
+                            <span id="ringkasan_zona" class="font-semibold text-slate-800">—</span>
                         </div>
 
-                        <div>
-                            <label class="block mb-2">Berat Tagih</label>
-                            <input
-                                type="text"
-                                id="ringkasan_berat"
-                                value="Menunggu perhitungan sistem"
-                                class="border-gray-300 rounded-md w-full bg-gray-100"
-                                disabled
-                            >
+                        <div class="flex justify-between gap-3">
+                            <span class="text-slate-500">Berat Aktual &rarr; Tagih:</span>
+                            <span id="ringkasan_berat" class="font-semibold text-slate-800">—</span>
                         </div>
 
-                        <div>
-                            <label class="block mb-2">Tarif per Kg</label>
-                            <input
-                                type="text"
-                                id="ringkasan_tarif"
-                                value="Menunggu perhitungan sistem"
-                                class="border-gray-300 rounded-md w-full bg-gray-100"
-                                disabled
-                            >
+                        <div class="flex justify-between gap-3">
+                            <span class="text-slate-500">Tarif per Kg:</span>
+                            <span id="ringkasan_tarif" class="font-semibold text-slate-800">—</span>
                         </div>
 
-                        <div>
-                            <label class="block mb-2">Ongkos Kirim</label>
-                            <input
-                                type="text"
-                                id="ringkasan_ongkir"
-                                value="Menunggu perhitungan sistem"
-                                class="border-gray-300 rounded-md w-full bg-gray-100"
-                                disabled
-                            >
+                        <div class="flex justify-between gap-3">
+                            <span class="text-slate-500">Ongkos Kirim:</span>
+                            <span id="ringkasan_ongkir" class="font-semibold text-slate-800">—</span>
                         </div>
 
-                        <div>
-                            <label class="block mb-2">Biaya COD</label>
-                            <input
-                                type="text"
-                                id="ringkasan_cod"
-                                value="Menunggu perhitungan sistem"
-                                class="border-gray-300 rounded-md w-full bg-gray-100"
-                                disabled
-                            >
+                        <div class="flex justify-between gap-3">
+                            <span class="text-slate-500">Biaya Layanan COD:</span>
+                            <span id="ringkasan_cod" class="font-semibold text-slate-800">—</span>
+                        </div>
+
+                        <div class="flex items-center justify-between gap-3 border-t border-slate-200 pt-2.5">
+                            <span class="text-[14px] font-bold text-[#0A3656]">
+                                Total Bayar di Loket:
+                            </span>
+
+                            <span id="ringkasan_total"
+                                    class="text-[17px] font-bold text-[#0A3656]">
+                                —
+                            </span>
                         </div>
 
                     </div>
 
-                        <p id="pesan_perhitungan" class="mt-4 text-sm text-gray-600">
-                            Lengkapi kota tujuan, berat, dan layanan untuk melihat estimasi tarif.
-                        </p>
 
-                        <div class="mt-8 border-t pt-6 flex justify-end gap-3">
+                    {{-- FALLBACK ZONA MANUAL --}}
 
+                    <div id="pilihan_zona_manual"
+                            class="{{ $errors->has('zona_manual') ? '' : 'hidden' }} mb-4 rounded-lg border border-amber-200 bg-amber-50 p-3">
 
-                        <a
-                            href="{{ route('paket.index') }}"
-                            class="bg-gray-200 px-4 py-2 rounded-md hover:bg-gray-300"
-                        >
-                            Batal
-                        </a>
-
-                        <button
-                            type="submit"
-                            class="bg-blue-600 text-gray-800 px-4 py-2 rounded-md hover:bg-blue-700"
-                        >
-                            Simpan Paket
-                        </button>
-                    </div>
-
-                    <div id="pilihan_zona_manual" class="mt-4 hidden">
-                        <label for="zona_manual" class="block mb-2 font-semibold">
-                            Pilih Zona Tujuan Secara Manual
+                        <label for="zona_manual"
+                                class="mb-1.5 block text-[12px] font-semibold text-amber-800">
+                            API Pusat Wilayah tidak dapat menentukan zona.
+                            Pilih zona tujuan secara manual.
                         </label>
 
-                        <select
-                            id="zona_manual"
-                            name="zona_manual"
-                            class="border-gray-300 rounded-md w-full"
-                        >
+                        <select id="zona_manual"
+                                name="zona_manual"
+                                class="w-full rounded-lg border border-amber-300 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-amber-300">
+
                             <option value="">-- Pilih Zona --</option>
 
                             @foreach ($zonaTarif as $zona)
-                                <option value="{{ $zona->id }}">
+                                <option value="{{ $zona->id }}"
+                                    {{ (string) old('zona_manual') === (string) $zona->id ? 'selected' : '' }}>
+
                                     {{ $zona->nama_zona }}
-                                    - Rp{{ number_format($zona->harga_per_kg, 0, ',', '.') }}/kg
+                                    — Rp{{ number_format($zona->harga_per_kg, 0, ',', '.') }}/kg
+
                                 </option>
                             @endforeach
+
                         </select>
 
-                        <p class="text-sm text-yellow-700 mt-2">
-                            Zona ditentukan secara manual karena API tidak dapat menentukan zona tujuan.
-                        </p>
+                        @error('zona_manual')
+                            <p class="mt-1.5 text-[11px] text-amber-700">
+                                {{ $message }}
+                            </p>
+                        @enderror
+
                     </div>
 
+
+                    {{-- PESAN PERHITUNGAN --}}
+
+                    <p id="pesan_perhitungan"
+                        class="mb-4 text-[12px] text-slate-500">
+                        Lengkapi kota tujuan, berat, dan layanan untuk melihat estimasi tarif.
+                    </p>
+
+
+                    {{-- TOMBOL SIMPAN --}}
+
+                    <button type="submit"
+                            class="w-full rounded-lg bg-[#0A3656] py-3 text-[14px] font-semibold text-white transition hover:bg-[#1D70A2] disabled:cursor-not-allowed disabled:opacity-60">
+                        Simpan Paket &amp; Buat Resi
+                    </button>
+
+                    <a href="{{ route('paket.index') }}"
+                        class="mt-2.5 block text-center text-[13px] font-semibold text-slate-500 hover:text-slate-700">
+                        Batal
+                    </a>
                 </div>
-                </form>
+
+
+                {{-- ATURAN SISTEM AKTIF --}}
+
+                <div class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+
+                    <h3 class="mb-2 text-[14px] font-bold text-[#0A3656]">
+                        Aturan Sistem Aktif
+                    </h3>
+
+                    <ul class="list-disc space-y-1.5 pl-4 text-[12px] text-slate-600">
+
+                        <li>
+                            Berat pecahan dibulatkan ke atas, minimum <b>1 kg</b>.
+                        </li>
+                        <li>
+                            Layanan Express dikenakan tambahan <b>+50%</b> dari tarif Reguler.
+                        </li>
+                        <li>
+                            Biaya COD = <b>maks(2% × Nilai COD, Rp2.000)</b>,
+                            hanya berlaku jika Nilai COD &gt; 0.
+                        </li>
+                        <li>
+                            Jika API Pusat Wilayah gagal menentukan zona,
+                            Admin dapat memilih zona secara manual dan paket ditandai
+                            <b>perlu verifikasi</b>.
+                        </li>
+                    </ul>
+                </div>
             </div>
         </div>
+    </form>
+
+    <div id="konfigurasi-paket"
+        data-url-hitung-tarif="{{ route('paket.hitung-tarif') }}">
     </div>
 
+    @push('scripts')
+        @vite('resources/js/pages/paket-create.js')
+    @endpush
 
-
-    {{-- hubungan endpoint javascript --}}
-
-    <script>
-        const kotaTujuan = document.getElementById('kota_tujuan');
-        const beratKg = document.getElementById('berat_kg');
-        const layanan = document.getElementById('layanan');
-        const nilaiCod = document.getElementById('nilai_cod');
-
-        const ringkasanZona = document.getElementById('ringkasan_zona');
-        const ringkasanBerat = document.getElementById('ringkasan_berat');
-        const ringkasanTarif = document.getElementById('ringkasan_tarif');
-        const ringkasanOngkir = document.getElementById('ringkasan_ongkir');
-        const ringkasanCod = document.getElementById('ringkasan_cod');
-        const pesanPerhitungan = document.getElementById('pesan_perhitungan');
-        const pilihanZonaManual = document.getElementById('pilihan_zona_manual');
-        const zonaManual = document.getElementById('zona_manual');
-
-        function formatRupiah(angka) {
-            return 'Rp' + Number(angka).toLocaleString('id-ID');
-        }
-
-        async function hitungTarif() {
-            const kota = kotaTujuan.value.trim();
-            const berat = beratKg.value;
-            const jenisLayanan = layanan.value;
-            const cod = nilaiCod.value || 0;
-            const zonaDipilih = zonaManual.value;
-
-            if (!kota || !berat || Number(berat) <= 0 || !jenisLayanan) {
-                pesanPerhitungan.textContent =
-                    'Lengkapi kota tujuan, berat, dan layanan untuk melihat estimasi tarif.';
-                return;
-            }
-
-            pesanPerhitungan.textContent = 'Sedang menghitung tarif...';
-
-            try {
-                const parameter = new URLSearchParams({
-                    kota_tujuan: kota,
-                    berat_kg: berat,
-                    layanan: jenisLayanan,
-                    nilai_cod: cod,
-                    zona_manual: zonaDipilih
-                });
-
-                const response = await fetch(
-                    `{{ route('paket.hitung-tarif') }}?${parameter}`,
-                    {
-                        headers: {
-                            'Accept': 'application/json'
-                            // Laravel mengembalikan respons validasi dalam format JSON.sbS
-                        }
-                    }
-                );
-
-                const hasil = await response.json();
-
-                if (!response.ok) {
-                    if (hasil.perlu_zona_manual) {
-                        pilihanZonaManual.classList.remove('hidden');
-
-                        pesanPerhitungan.textContent = hasil.message;
-                        return;
-                    }
-
-                    throw new Error(hasil.message || 'Gagal menghitung tarif.');
-                }
-
-                ringkasanZona.value = hasil.zona;
-                ringkasanBerat.value = hasil.berat_tagih + ' kg';
-                ringkasanTarif.value = formatRupiah(hasil.tarif_per_kg);
-                ringkasanOngkir.value = formatRupiah(hasil.ongkir);
-                ringkasanCod.value = formatRupiah(hasil.biaya_cod);
-
-                pesanPerhitungan.textContent = zonaDipilih
-                    ? 'Tarif dihitung menggunakan zona manual.'
-                    : 'Perhitungan tarif berhasil.';
-
-            } catch (error) {
-                pesanPerhitungan.textContent = error.message;
-            }
-        }
-
-        // Event listener dipasang satu kali di luar fungsi.
-        kotaTujuan.addEventListener('change', () => {
-            zonaManual.value = '';
-            pilihanZonaManual.classList.add('hidden');
-
-            hitungTarif();
-        });
-
-        beratKg.addEventListener('input', hitungTarif);
-        layanan.addEventListener('change', hitungTarif);
-        nilaiCod.addEventListener('input', hitungTarif);
-        zonaManual.addEventListener('change', hitungTarif);
-    </script>
-</x-app-layout>
+@endsection

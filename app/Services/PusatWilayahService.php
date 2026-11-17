@@ -10,6 +10,8 @@ class PusatWilayahService
     public function ambilZona(string $kota): ?int
     {
         try {
+
+            // Mengirim permintaan ke API Pusat Wilayah.
             $response = Http::withHeaders([
                 'X-API-Key' => config('services.pusat_wilayah.api_key'),
             ])
@@ -20,22 +22,31 @@ class PusatWilayahService
                     ['kota' => $kota]
                 );
 
-            // Pemeriksaan keberhasilan API
+            // Memeriksa keberhasilan respons API.
             if (!$response->successful()) {
                 return null;
             }
 
-            // Pemeriksaan zona
+            // Mengambil kode zona dari respons JSON.
             $zona = $response->json('zona');
 
+            // Memastikan kode zona berupa angka.
             if (!is_numeric($zona)) {
                 return null;
             }
 
             return (int) $zona;
-
-        // Penanganan masalah koneksi
+            
         } catch (ConnectionException $e) {
+
+            // Menangani kegagalan koneksi API.
+            return null;
+
+        } catch (\Throwable $e) {
+
+            // Menangani kesalahan lain saat proses API.
+            report($e);
+
             return null;
         }
     }

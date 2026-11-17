@@ -12,11 +12,44 @@ use App\Models\RiwayatPaket;
 
 class PaketController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $paket = Paket::all(); // mengambil seluruh data paket
+        // Mengambil data paket beserta relasi yang dibutuhkan.
+        $query = Paket::with([
+            'pengirim',
+            'kurir',
+            'zonaTarif',
+            'riwayat' => function ($query){ // mengambil catatan perubahan status paket.
+                $query->orderBy('created_at', 'desc'); // mengurutkan dri yg terbaru
+                },     
+            ]);
 
-        return view('paket.index', compact('paket')); // mengirim variable $paket ke blade
+        // Filter berdasarkan status.
+        if ($request->filled('status') && $request->status !== 'ALL') {
+            $query->where('status', $request->status);
+        }
+
+        // Pencarian berdasarkan nomor resi atau nama penerima.
+        if ($request->filled('q')) {
+            $keyword = $request->q;
+
+            $query->where(function ($query) use ($keyword) {
+                $query->where('no_resi', 'like', "%{$keyword}%")
+                    ->orWhere('penerima_nama', 'like', "%{$keyword}%");
+            });
+        }
+
+        // Mengambil data paket dengan pagination.
+        $paket = $query
+            ->latest()
+            ->paginate(10)
+            ->withQueryString();
+        
+        // Menentukan paket yang akan ditampilkan detailnya.
+        $detailPaket = $paket->firstWhere('id', $request->query('detail'))
+            ?? $paket->first(); 
+
+        return view('paket.index', compact('paket', 'detailPaket'));
     }
 
     public function create()
@@ -100,7 +133,7 @@ class PaketController extends Controller
 
         // jika layanan adalah Express, ongkir dikalikan 1.5
         if ($validated['layanan'] === 'Express') {
-            $ongkir *= 1.5;
+            $ongkir = (int) ($ongkir * 1.5);
         }
 
 
@@ -110,7 +143,7 @@ class PaketController extends Controller
         // jika nilai COD lebih dari 0, biaya COD dihitung sebagai 2%
         // dari nilai COD, dengan minimal Rp 2.000.
         if ($validated['nilai_cod'] > 0) {
-            $biayaCod = max(
+            $biayaCod = (int) max(
                 $validated['nilai_cod'] * 0.02,
                 2000
             );
@@ -198,7 +231,7 @@ class PaketController extends Controller
         // Ambil tanggal hari ini dalam format YYYY-MM-DD
         $tanggal = now()->toDateString(); 
 
-        // Pastikan penghitung untuk tanggal hari ini tersedia.
+        // Jika tanggal belum ada di tabel, buat penghitung baru dengan nilai 0.
         DB::table('urutan_resi')->insertOrIgnore([
             'tanggal' => $tanggal, // jika sudah ada, tidak akan menambahkan data baru
             'nomor_terakhir' => 0,
@@ -240,7 +273,7 @@ class PaketController extends Controller
         if (!empty($validated['zona_manual'])) {
 
             // Menggunakan zona pilihan Admin
-            $zonaTarif = ZonaTarif::find($validated['zona_manual']);
+            $zonaTarif = ZonaTarif::findOrFail($validated['zona_manual']);
 
         } else {
 
@@ -272,8 +305,9 @@ class PaketController extends Controller
         $tarifPerKg = $zonaTarif->harga_per_kg;
         $ongkir = $beratTagih * $tarifPerKg;
 
+        // Perhitungan express
         if ($validated['layanan'] === 'Express') {
-            $ongkir *= 1.5;
+            $ongkir = (int) ($ongkir * 1.5);
         }
 
         // 5. Menghitung biaya COD
@@ -281,7 +315,7 @@ class PaketController extends Controller
         $biayaCod = 0;
 
         if ($nilaiCod > 0) {
-            $biayaCod = max($nilaiCod * 0.02, 2000);
+            $biayaCod = (int) max($nilaiCod * 0.02, 2000);
         }
 
         return response()->json([
