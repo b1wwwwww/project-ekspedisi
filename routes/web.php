@@ -59,6 +59,14 @@ Route::middleware('auth')->group(function () {
         // pake patch hanya memperbarui sebagian data paket, yaitu statusnya.
     Route::patch('/paket/{paket}/transit', [PaketController::class, 'ubahKeTransit'])
         ->name('paket.transit'); 
+
+
+    // Tambah Pelanggan
+    Route::get('/pelanggan/create', [PelangganController::class, 'create'])
+        ->name('pelanggan.create');
+
+    Route::post('/pelanggan', [PelangganController::class, 'store'])
+        ->name('pelanggan.store');
 });
 
 require __DIR__.'/auth.php';

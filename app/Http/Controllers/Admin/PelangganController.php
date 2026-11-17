@@ -31,4 +31,24 @@ class PelangganController extends Controller
 
         return view('pelanggan.index', compact('pelanggan'));
     }
+
+    public function create()
+    {
+        return view('pelanggan.create');
+    }
+
+    public function store(Request $request)
+    {
+        $validated = $request->validate([
+            'nama' => ['required', 'string', 'max:100'],
+            'telepon' => ['required', 'string', 'max:20', 'unique:pelanggan,telepon'],
+            'alamat' => ['nullable', 'string'],
+        ]);
+
+        Pelanggan::create($validated);
+
+        return redirect()
+            ->route('pelanggan.index')
+            ->with('success', 'Pelanggan berhasil ditambahkan.');
+    }
 }

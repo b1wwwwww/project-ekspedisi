@@ -21,9 +21,6 @@
 
         {{-- Operasional --}}
         <div>
-            <p class="mb-3 px-3 text-xs font-semibold uppercase tracking-wider text-blue-300">
-                Operasional
-            </p>
 
             <div class="space-y-1">
 
@@ -62,11 +59,7 @@
 
         {{-- Data Master --}}
         <div>
-            <p class="mb-3 px-3 text-xs font-semibold uppercase tracking-wider text-blue-300">
-                Data Master
-            </p>
-
-            <div class="space-y-1">
+            <div class="">
 
                 <a href="{{ route('pelanggan.index') }}"
                    class="block rounded-lg px-3 py-2.5 text-sm font-medium transition hover:bg-[#1D70A2]">

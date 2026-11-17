@@ -56,7 +56,11 @@ class PaketController extends Controller
     public function create()
     {
         $zonaTarif = ZonaTarif::all();
-        return view ('paket.create', compact('zonaTarif')); // menampilkan form tambah paket
+
+        // Mengambil seluruh pelanggan untuk pilihan pengirim.
+        $pelanggan = Pelanggan::orderBy('nama')->get();
+
+        return view('paket.create', compact('zonaTarif', 'pelanggan'));
     }
 
     
@@ -67,6 +71,7 @@ class PaketController extends Controller
         PusatWilayahService $pusatWilayahService
     ) {
         $validated = $request->validate([
+            'pelanggan_id' => 'nullable|exists:pelanggan,id',
             'telepon_pengirim' => 'required|string|max:20',
             'nama_pengirim'    => 'required|string|max:255',
             'alamat_pengirim'  => 'nullable|string',
@@ -163,15 +168,24 @@ class PaketController extends Controller
         $perluVerifikasi
     ) {
 
-    // 1. Cari pengirim berdasarkan nomor telepon.
-    // Jika belum ada, buat pelanggan baru.
-    $pengirim = Pelanggan::firstOrCreate(
-        ['telepon' => $validated['telepon_pengirim']],
-        [
-            'nama' => $validated['nama_pengirim'],
-            'alamat' => $validated['alamat_pengirim'],
-        ]
-    );
+    // 1. Menentukan pelanggan pengirim.
+    if (!empty($validated['pelanggan_id'])) {
+
+        // Jika memilih pelanggan terdaftar, gunakan pelanggan tersebut.
+        $pengirim = Pelanggan::findOrFail($validated['pelanggan_id']);
+
+    } else {
+
+        // Jika tidak memilih pelanggan, cari berdasarkan nomor telepon.
+        // Jika belum ada, buat pelanggan baru.
+        $pengirim = Pelanggan::firstOrCreate(
+            ['telepon' => $validated['telepon_pengirim']],
+            [
+                'nama' => $validated['nama_pengirim'],
+                'alamat' => $validated['alamat_pengirim'],
+            ]
+        );
+    }
 
     // 2. Buat nomor resi otomatis.
     $nomorResi = $this->buatNomorResi();

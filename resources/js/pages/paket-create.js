@@ -321,3 +321,34 @@
                 hitungTarif();
             }
         });
+
+
+        // =================================================
+        // PILIH PELANGGAN TERDAFTAR
+        // =================================================
+
+        const pilihPelanggan = document.getElementById('pilih_pelanggan');
+
+        const namaPengirim = document.getElementById('nama_pengirim');
+        const teleponPengirim = document.getElementById('telepon_pengirim');
+        const alamatPengirim = document.getElementById('alamat_pengirim');
+
+        // Mengisi data pengirim berdasarkan pelanggan yang dipilih.
+        pilihPelanggan.addEventListener('change', function () {
+
+            const pelangganDipilih = this.options[this.selectedIndex];
+
+            // Jika pilihan dikosongkan, kosongkan input pengirim.
+            if (!this.value) {
+                namaPengirim.value = '';
+                teleponPengirim.value = '';
+                alamatPengirim.value = '';
+                return;
+            }
+
+            // Mengambil data pelanggan dari atribut HTML.
+            namaPengirim.value = pelangganDipilih.dataset.nama;
+            teleponPengirim.value = pelangganDipilih.dataset.telepon;
+            alamatPengirim.value = pelangganDipilih.dataset.alamat || '';
+
+        });

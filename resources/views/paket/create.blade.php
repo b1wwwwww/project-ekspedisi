@@ -55,9 +55,33 @@
 
                     {{-- A. DATA PENGIRIM --}}
 
-                    <h3 class="mb-3 text-xs font-bold uppercase tracking-wider text-slate-500">
-                        A. Data Pengirim
-                    </h3>
+                    {{-- Pilih Pelanggan Terdaftar --}}
+                    <div class="mb-4">
+                    <label for="pilih_pelanggan"
+                        class="mb-2 block text-sm font-semibold text-slate-700">
+                        Pilih Pelanggan Terdaftar
+                    </label>
+
+                    <select
+                        id="pilih_pelanggan"
+                        name="pelanggan_id"
+                        class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm">
+
+                        <option value="">-- Pilih Pelanggan --</option>
+
+                        @foreach ($pelanggan as $item)
+                            <option
+                                value="{{ $item->id }}"
+                                data-nama="{{ $item->nama }}"
+                                data-telepon="{{ $item->telepon }}"
+                                data-alamat="{{ $item->alamat }}">
+
+                                {{ $item->nama }} — {{ $item->telepon }}
+
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
 
                     <div class="mb-3 grid grid-cols-1 gap-4 md:grid-cols-2">
 
@@ -125,11 +149,6 @@
 
 
                     {{-- B. DATA PENERIMA --}}
-
-                    <h3 class="mb-3 text-xs font-bold uppercase tracking-wider text-slate-500">
-                        B. Data Penerima
-                    </h3>
-
                     <div class="mb-3 grid grid-cols-1 gap-4 md:grid-cols-2">
 
                         <div>
@@ -238,13 +257,7 @@
 
                     </div>
 
-
                     {{-- C. INFORMASI PAKET --}}
-
-                    <h3 class="mb-3 text-xs font-bold uppercase tracking-wider text-slate-500">
-                        C. Informasi Paket
-                    </h3>
-
                     <div class="grid grid-cols-1 gap-4 md:grid-cols-3">
 
                         <div>
@@ -446,35 +459,6 @@
                         class="mt-2.5 block text-center text-[13px] font-semibold text-slate-500 hover:text-slate-700">
                         Batal
                     </a>
-                </div>
-
-
-                {{-- ATURAN SISTEM AKTIF --}}
-
-                <div class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
-
-                    <h3 class="mb-2 text-[14px] font-bold text-[#0A3656]">
-                        Aturan Sistem Aktif
-                    </h3>
-
-                    <ul class="list-disc space-y-1.5 pl-4 text-[12px] text-slate-600">
-
-                        <li>
-                            Berat pecahan dibulatkan ke atas, minimum <b>1 kg</b>.
-                        </li>
-                        <li>
-                            Layanan Express dikenakan tambahan <b>+50%</b> dari tarif Reguler.
-                        </li>
-                        <li>
-                            Biaya COD = <b>maks(2% × Nilai COD, Rp2.000)</b>,
-                            hanya berlaku jika Nilai COD &gt; 0.
-                        </li>
-                        <li>
-                            Jika API Pusat Wilayah gagal menentukan zona,
-                            Admin dapat memilih zona secara manual dan paket ditandai
-                            <b>perlu verifikasi</b>.
-                        </li>
-                    </ul>
                 </div>
             </div>
         </div>
