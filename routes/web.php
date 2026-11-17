@@ -31,21 +31,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/pelanggan', [PelangganController::class, 'index'])
         ->name('pelanggan.index');
 
-        // List Daftar Paket
-    Route::get('/paket', [PaketController::class, 'index'])
-        ->name('paket.index');
-
-        // Form Tambah Paket
-    Route::get('/paket/create', [PaketController::class, 'create'])
-        ->name('paket.create');
-
-        // Menyimpan data paket baru
-    Route::post('/paket', [PaketController::class, 'store'])
-        ->name('paket.store');
-
-        // Menghitung tarif paket berdasarkan berat dan zona
-    Route::get('/paket/hitung-tarif', [PaketController::class, 'hitungTarif'])
-        ->name('paket.hitung-tarif');
+   
 
         // Halaman Penugasan Kurir
     Route::get('/admin/penugasan-kurir', [PenugasanKurirController::class, 'index'])
@@ -55,6 +41,24 @@ Route::middleware('auth')->group(function () {
     Route::post('/admin/penugasan-kurir', [PenugasanKurirController::class, 'store'])
         ->name('admin.penugasan-kurir.store');
 
+
+    Route::get('/paket', [PaketController::class, 'index'])
+        ->name('paket.index');
+
+    Route::get('/paket/create', [PaketController::class, 'create'])
+        ->name('paket.create');
+
+    Route::get('/paket/hitung-tarif', [PaketController::class, 'hitungTarif'])
+        ->name('paket.hitung-tarif');
+
+    Route::get('/paket/{paket}', [PaketController::class, 'show'])
+        ->name('paket.show');
+
+    Route::post('/paket', [PaketController::class, 'store'])
+        ->name('paket.store');
+
+    Route::patch('/paket/{paket}/transit', [PaketController::class, 'ubahKeTransit'])
+        ->name('paket.transit');
         // Mengubah status paket menjadi "Transit"
         // pake patch hanya memperbarui sebagian data paket, yaitu statusnya.
     Route::patch('/paket/{paket}/transit', [PaketController::class, 'ubahKeTransit'])

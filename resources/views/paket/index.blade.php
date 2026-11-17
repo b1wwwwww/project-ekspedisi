@@ -250,6 +250,11 @@
 
                         <div class="flex items-center gap-2">
 
+                            <a href="{{ route('paket.show', $detailPaket->id) }}"
+                                class="bg-blue-50 hover:bg-blue-600 text-blue-600 hover:text-white border border-blue-200 px-2.5 py-1 rounded-md text-xs font-semibold transition">
+                                Detail Paket
+                            </a>
+
                             <button
                                 type="button"
                                 onclick="document.getElementById('modal-struk').classList.remove('hidden')"

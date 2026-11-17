@@ -372,4 +372,20 @@ class PaketController extends Controller
 
         return back()->with('success', 'Status paket berhasil diubah menjadi Transit.');
     }
+
+    public function show(Paket $paket)
+    {
+        // Mengambil data paket beserta seluruh relasi yang dibutuhkan.
+        $paket->load([
+            'pengirim',
+            'kurir.pengguna',
+            'zonaTarif',
+            'riwayat' => function ($query) {
+                $query->with('pengguna')
+                    ->orderBy('created_at', 'asc');
+            },
+        ]);
+
+        return view('paket.show', compact('paket'));
+    }
 }
