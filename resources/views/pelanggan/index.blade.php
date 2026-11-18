@@ -18,12 +18,14 @@
                 </p>
             </div>
 
-            {{-- Tombol Tambah Pelanggan --}}
-            <a href="{{ route('pelanggan.create') }}"
-                class="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-[#0A3656] hover:bg-[#082b45] text-white text-sm font-semibold rounded-lg transition">
-                <span class="text-lg leading-none">+</span>
-                Tambah Pelanggan
-            </a>
+            {{-- Tombol Tambah Pelanggan: khusus Admin --}}
+            @if (auth()->user()->role === 'admin')
+                <a href="{{ route('pelanggan.create') }}"
+                    class="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-[#0A3656] hover:bg-[#082b45] text-white text-sm font-semibold rounded-lg transition">
+                    <span class="text-lg leading-none">+</span>
+                    Tambah Pelanggan
+                </a>
+            @endif
         </div>
 
         {{-- Konten Utama --}}
@@ -84,6 +86,11 @@
                             <th class="px-5 py-3 font-semibold">Telepon</th>
                             <th class="px-5 py-3 font-semibold">Alamat</th>
                             <th class="px-5 py-3 font-semibold text-center">Total Kiriman</th>
+
+                            @if (auth()->user()->role === 'admin')
+                                <th class="px-5 py-3 font-semibold text-center">Aksi</th>
+                            @endif
+
                         </tr>
                     </thead>
 
@@ -114,11 +121,20 @@
                                     </span>
                                 </td>
 
+                                @if (auth()->user()->role === 'admin')
+                                <td class="px-5 py-4 text-center">
+                                    <a href="{{ route('pelanggan.edit', $item->id) }}"
+                                        class="inline-flex items-center px-3 py-1.5 bg-amber-50 hover:bg-amber-100 text-amber-700 text-xs font-semibold rounded-lg transition">
+                                        Edit
+                                    </a>
+                                </td>
+                            @endif
+
                             </tr>
 
                         @empty
                             <tr>
-                                <td colspan="5" class="px-5 py-10 text-center">
+                                <td colspan="{{ auth()->user()->role === 'admin' ? 6 : 5 }}" class="px-5 py-10 text-center">
                                     <p class="text-sm font-medium text-slate-500">
                                         Belum ada data pelanggan.
                                     </p>

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Pelanggan;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class PelangganController extends Controller
 {
@@ -50,5 +51,32 @@ class PelangganController extends Controller
         return redirect()
             ->route('pelanggan.index')
             ->with('success', 'Pelanggan berhasil ditambahkan.');
+    }
+
+
+    public function edit(Pelanggan $pelanggan)
+    {
+        return view('pelanggan.edit', compact('pelanggan'));
+    }
+
+    public function update(Request $request, Pelanggan $pelanggan)
+    {
+        $validated = $request->validate([
+            'nama' => ['required', 'string', 'max:100'],
+            'telepon' => [
+                'required',
+                'string',
+                'max:20',
+                Rule::unique('pelanggan', 'telepon')->ignore($pelanggan->id),
+                // validasi no telp tidak boleh sama
+            ],
+            'alamat' => ['nullable', 'string'],
+        ]);
+
+        $pelanggan->update($validated);
+
+        return redirect()
+            ->route('pelanggan.index')
+            ->with('success', 'Data pelanggan berhasil diperbarui.');
     }
 }

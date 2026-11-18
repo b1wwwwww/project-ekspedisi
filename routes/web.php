@@ -15,11 +15,21 @@ Route::get('/', function () {
 });
 
 Route::get('/dashboard', function (Request $request) {
-    if ($request->user()->role === 'kurir') {
+    $role = $request->user()->role;
+
+    if ($role === 'kurir') {
         return redirect()->route('kurir.penugasan.index');
     }
 
-    return redirect()->route('admin.dashboard');
+    if ($role === 'admin') {
+        return redirect()->route('admin.dashboard');
+    }
+
+    if ($role === 'manajer') {
+        return view('dashboard');
+    }
+
+    abort(403);
 })->middleware('auth')->name('dashboard');
 
 Route::middleware(['auth', 'wajib.ganti.password'])->group(function () {
@@ -51,19 +61,57 @@ Route::middleware(['auth', 'wajib.ganti.password'])->group(function () {
     // Halaman khusus Admin dan Manajer.
     Route::middleware('role:admin,manajer')->group(function () {
 
-        // Dashboard Admin
-        Route::get('/admin', [DashboardController::class, 'index'])
-            ->name('admin.dashboard');
-
-        // Data Pelanggan
+        // Data Pelanggan: dapat dilihat oleh Admin dan Manajer.
         Route::get('/pelanggan', [PelangganController::class, 'index'])
             ->name('pelanggan.index');
+
+        // Data Kurir: dapat dilihat oleh Admin dan Manajer.
+        Route::get('/admin/kurir', [KurirController::class, 'index'])
+            ->name('admin.kurir.index');
+
+    });
+
+    // Khusus Admin: tambah dan ubah data Pelanggan.
+    Route::middleware('role:admin')->group(function () {
 
         Route::get('/pelanggan/create', [PelangganController::class, 'create'])
             ->name('pelanggan.create');
 
         Route::post('/pelanggan', [PelangganController::class, 'store'])
             ->name('pelanggan.store');
+
+        // Edit data pelanggan
+        Route::get('/pelanggan/{pelanggan}/edit', [PelangganController::class, 'edit'])
+            ->name('pelanggan.edit');
+
+        // Simpan perubahan data pelanggan
+        Route::put('/pelanggan/{pelanggan}', [PelangganController::class, 'update'])
+            ->name('pelanggan.update');
+
+    });
+
+    // Khusus Admin: pengelolaan data Kurir dan operasional pengiriman.
+    Route::middleware('role:admin')->group(function () {
+
+        // Dashboard Admin
+        Route::get('/admin', [DashboardController::class, 'index'])
+            ->name('admin.dashboard');
+
+        // Data Kurir
+        Route::get('/admin/kurir/create', [KurirController::class, 'create'])
+            ->name('admin.kurir.create');
+
+        Route::post('/admin/kurir', [KurirController::class, 'store'])
+            ->name('admin.kurir.store');
+
+        Route::get('/admin/kurir/{kurir}/edit', [KurirController::class, 'edit'])
+            ->name('admin.kurir.edit');
+
+        Route::put('/admin/kurir/{kurir}', [KurirController::class, 'update'])
+            ->name('admin.kurir.update');
+
+        Route::patch('/admin/kurir/{kurir}/status', [KurirController::class, 'toggleStatus'])
+            ->name('admin.kurir.toggle-status');
 
         // Penugasan Kurir
         Route::get('/admin/penugasan-kurir', [PenugasanKurirController::class, 'index'])
@@ -72,7 +120,7 @@ Route::middleware(['auth', 'wajib.ganti.password'])->group(function () {
         Route::post('/admin/penugasan-kurir', [PenugasanKurirController::class, 'store'])
             ->name('admin.penugasan-kurir.store');
 
-        // Data Paket
+        // Operasional Paket
         Route::get('/paket', [PaketController::class, 'index'])
             ->name('paket.index');
 
@@ -93,25 +141,6 @@ Route::middleware(['auth', 'wajib.ganti.password'])->group(function () {
 
         Route::patch('/paket/{paket}/retur', [PaketController::class, 'prosesRetur'])
             ->name('paket.retur');
-
-        // Kelola akun dan profil Kurir.
-        Route::get('/admin/kurir', [KurirController::class, 'index'])
-            ->name('admin.kurir.index');
-
-        Route::get('/admin/kurir/create', [KurirController::class, 'create'])
-            ->name('admin.kurir.create');
-
-        Route::post('/admin/kurir', [KurirController::class, 'store'])
-            ->name('admin.kurir.store');
-
-        Route::get('/admin/kurir/{kurir}/edit', [KurirController::class, 'edit'])
-            ->name('admin.kurir.edit');
-
-        Route::put('/admin/kurir/{kurir}', [KurirController::class, 'update'])
-            ->name('admin.kurir.update');
-
-        Route::patch('/admin/kurir/{kurir}/status', [KurirController::class, 'toggleStatus'])
-            ->name('admin.kurir.toggle-status');
 
     });
 
