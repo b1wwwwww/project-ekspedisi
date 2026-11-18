@@ -15,7 +15,7 @@ class ManagerSeeder extends Seeder
                 'nama' => 'Manager Test',
                 'telepon' => '081234567890',
                 'password' => 'password',
-                'role' => 'manager',
+                'role' => 'manajer',
                 'wajib_ganti_password' => false,
             ]
         );
