@@ -58,9 +58,19 @@ class PenugasanController extends Controller
         // Memastikan paket merupakan penugasan Kurir tersebut.
         $paket = $kurir->paket()->findOrFail($id);
 
+        // Terkirim dan Retur adalah status final.
+        if (in_array($paket->status, ['Terkirim', 'Retur'], true)) {
+            return back()->with('error', 'Paket sudah memiliki status final dan tidak dapat diubah.');
+        }
+
         // Status hanya boleh diubah ketika paket sedang dikirim.
         if ($paket->status !== 'Dikirim') {
             return back()->with('error', 'Status paket tidak dapat diubah.');
+        }
+
+        // Setelah gagal dua kali, kirim ulang ditolak sampai Admin memproses Retur.
+        if ($validated['status'] === 'Gagal Kirim' && $paket->jumlah_gagal >= 2) {
+            return back()->with('error', 'Pengiriman sudah gagal dua kali. Paket menunggu proses Retur oleh Admin.');
         }
 
         // Catatan wajib diisi jika pengiriman gagal.

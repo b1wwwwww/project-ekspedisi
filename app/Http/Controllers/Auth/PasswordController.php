@@ -34,6 +34,12 @@ class PasswordController extends Controller
 
         $pengguna->update($perubahan);
 
+        if ($pengguna->role === 'kurir') {
+            return redirect()
+                ->route('kurir.penugasan.index')
+                ->with('success', 'Password berhasil diperbarui.');
+        }
+
         return back()->with('status', 'password-updated');
     }
 }

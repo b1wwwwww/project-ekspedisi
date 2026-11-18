@@ -16,7 +16,11 @@ class ProfileController extends Controller
      */
     public function edit(Request $request): View
     {
-        return view('profile.edit', [
+        $view = $request->user()->role === 'kurir'
+            ? 'profile.kurir-edit'
+            : 'profile.edit';
+
+        return view($view, [
             'user' => $request->user(),
         ]);
     }
@@ -25,13 +29,14 @@ class ProfileController extends Controller
      * Update the user's profile information.
      */
     public function update(ProfileUpdateRequest $request): RedirectResponse
-{
-    // fill() mengisi atribut pengguna berdasarkan data yang sudah divalidasi.
-    $request->user()->fill($request->validated());
-    // save() menyimpan perubahan ke database.
-    $request->user()->save();
-    return Redirect::route('profile.edit')->with('status', 'profile-updated');
-}
+    {
+        // fill() mengisi atribut pengguna berdasarkan data yang sudah divalidasi.
+        $request->user()->fill($request->validated());
+        // save() menyimpan perubahan ke database.
+        $request->user()->save();
+
+        return Redirect::route('profile.edit')->with('status', 'profile-updated');
+    }
 
     /**
      * Delete the user's account.

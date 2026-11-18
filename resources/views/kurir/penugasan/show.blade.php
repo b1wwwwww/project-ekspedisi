@@ -158,6 +158,20 @@
                 @enderror
             </div>
 
+            <div id="blok-catatan-gagal" class="mb-5 hidden">
+                <label for="catatan" class="mb-2 block text-sm font-medium text-slate-700">
+                    Alasan Gagal Kirim <span class="text-red-600">*</span>
+                </label>
+
+                <textarea name="catatan" id="catatan" rows="3"
+                          placeholder="Tuliskan alasan kegagalan pengiriman secara jelas..."
+                          class="w-full rounded-lg border border-slate-300 px-4 py-3 text-sm focus:border-[#0A3656] focus:outline-none">{{ old('catatan') }}</textarea>
+
+                @error('catatan')
+                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                @enderror
+            </div>
+
             <div class="mb-5">
                 <label for="catatan" class="mb-2 block text-sm font-medium text-slate-700">
                     Catatan Pengiriman
@@ -196,4 +210,38 @@
 
 </div>
 
+@endsection
+
+@section('scripts')
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const statusSelect = document.getElementById('status');
+        const blokCatatanGagal = document.getElementById('blok-catatan-gagal');
+
+        statusSelect.addEventListener('change', function () {
+            if (this.value === 'Gagal Kirim') {
+                blokCatatanGagal.classList.remove('hidden');
+            } else {
+                blokCatatanGagal.classList.add('hidden');
+            }
+        });
+    });
+
+    const statusPengiriman = document.getElementById('status');
+    const blokCatatan = document.getElementById('blok-catatan-gagal');
+    const catatanPengiriman = document.getElementById('catatan');
+
+    function sinkronCatatanGagal() {
+        const gagal = statusPengiriman.value === 'Gagal Kirim';
+        blokCatatan.classList.toggle('hidden', !gagal);
+        catatanPengiriman.required = gagal;
+
+        if (!gagal) {
+            catatanPengiriman.value = '';
+        }
+    }
+
+    statusPengiriman.addEventListener('change', sinkronCatatanGagal);
+    sinkronCatatanGagal();
+</script>
 @endsection

@@ -91,6 +91,9 @@ Route::middleware(['auth', 'wajib.ganti.password'])->group(function () {
         Route::patch('/paket/{paket}/transit', [PaketController::class, 'ubahKeTransit'])
             ->name('paket.transit');
 
+        Route::patch('/paket/{paket}/retur', [PaketController::class, 'prosesRetur'])
+            ->name('paket.retur');
+
         // Kelola akun dan profil Kurir.
         Route::get('/admin/kurir', [KurirController::class, 'index'])
             ->name('admin.kurir.index');
@@ -114,4 +117,4 @@ Route::middleware(['auth', 'wajib.ganti.password'])->group(function () {
 
 });
 
-require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';

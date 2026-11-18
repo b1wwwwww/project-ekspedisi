@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\Kurir;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -101,5 +102,35 @@ class ProfileTest extends TestCase
             ->assertRedirect('/profile');
 
         $this->assertNotNull($user->fresh());
+    }
+
+    public function test_courier_password_change_completes_first_login_flow(): void
+    {
+        $user = User::factory()->create([
+            'role' => 'kurir',
+            'password' => 'password123',
+            'wajib_ganti_password' => true,
+        ]);
+
+        Kurir::create([
+            'pengguna_id' => $user->id,
+            'kode_kurir' => 'KUR-TEST',
+            'area_tugas' => '-',
+            'aktif' => true,
+        ]);
+
+        $profileResponse = $this->actingAs($user)->get('/profile');
+        $profileResponse->assertOk();
+        $profileResponse->assertViewIs('profile.kurir-edit');
+
+        $passwordResponse = $this->actingAs($user)->put('/password', [
+            'current_password' => 'password123',
+            'password' => 'password456',
+            'password_confirmation' => 'password456',
+        ]);
+
+        $passwordResponse->assertRedirect(route('kurir.penugasan.index'));
+
+        $this->assertFalse($user->fresh()->wajib_ganti_password);
     }
 }

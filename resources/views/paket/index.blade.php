@@ -201,6 +201,15 @@
                                             Transit
                                         </button>
                                     </form>
+                                @elseif ($item->status === 'Gagal Kirim' && $item->jumlah_gagal >= 2)
+                                    <form action="{{ route('paket.retur', $item) }}" method="POST">
+                                        @csrf
+                                        @method('PATCH')
+                                        <button type="submit"
+                                                class="px-2.5 py-1.5 bg-slate-700 hover:bg-slate-800 text-white text-[11px] font-semibold rounded-lg transition">
+                                            Proses Retur
+                                        </button>
+                                    </form>
                                 @else
                                     <span class="text-xs text-slate-400">-</span>
                                 @endif
@@ -278,7 +287,7 @@
         {{-- Modal Struk --}}
         @if ($detailPaket)
             <div id="modal-struk"
-                class="hidden fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
+                class="fixed inset-0 z-50 hidden items-center justify-center bg-black/50 p-4">
 
                 <div id="area-struk" class="bg-white w-full max-w-md rounded-xl shadow-xl overflow-hidden">
 

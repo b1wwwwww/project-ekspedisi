@@ -5,11 +5,11 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Paket;
 use App\Models\Pelanggan;
-use Illuminate\Http\Request;
+use App\Models\RiwayatPaket;
 use App\Models\ZonaTarif;
 use App\Services\PusatWilayahService;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use App\Models\RiwayatPaket;
 
 class PaketController extends Controller
 {
@@ -20,10 +20,10 @@ class PaketController extends Controller
             'pengirim',
             'kurir.pengguna',
             'zonaTarif',
-            'riwayat' => function ($query){ // mengambil catatan perubahan status paket.
+            'riwayat' => function ($query) { // mengambil catatan perubahan status paket.
                 $query->orderBy('created_at', 'desc'); // mengurutkan dri yg terbaru
-                },     
-            ]);
+            },
+        ]);
 
         // Filter berdasarkan status.
         if ($request->filled('status') && $request->status !== 'ALL') {
@@ -45,10 +45,10 @@ class PaketController extends Controller
             ->latest()
             ->paginate(10)
             ->withQueryString();
-        
+
         // Menentukan paket yang akan ditampilkan detailnya.
         $detailPaket = $paket->firstWhere('id', $request->query('detail'))
-            ?? $paket->first(); 
+            ?? $paket->first();
 
         return view('paket.index', compact('paket', 'detailPaket'));
     }
@@ -63,8 +63,6 @@ class PaketController extends Controller
         return view('paket.create', compact('zonaTarif', 'pelanggan'));
     }
 
-    
-
     public function store(
         // menerima Request agar bisa membaca data dari form tambah paket.
         Request $request,
@@ -73,18 +71,18 @@ class PaketController extends Controller
         $validated = $request->validate([
             'pelanggan_id' => 'nullable|exists:pelanggan,id',
             'telepon_pengirim' => 'required|string|max:20',
-            'nama_pengirim'    => 'required|string|max:255',
-            'alamat_pengirim'  => 'nullable|string',
+            'nama_pengirim' => 'required|string|max:255',
+            'alamat_pengirim' => 'nullable|string',
 
-            'penerima_nama'    => 'required|string|max:255',
+            'penerima_nama' => 'required|string|max:255',
             'penerima_telepon' => 'required|string|max:20',
-            'penerima_alamat'  => 'required|string',
-            'kota_tujuan'      => 'required|string|max:255',
+            'penerima_alamat' => 'required|string',
+            'kota_tujuan' => 'required|string|max:255',
 
-            'berat_kg'         => 'required|numeric|gt:0',
-            'layanan'          => 'required|in:Reguler,Express',
-            'nilai_cod'        => 'required|numeric|min:0',
-            'zona_manual'      => 'nullable|exists:zona_tarif,id'
+            'berat_kg' => 'required|numeric|gt:0',
+            'layanan' => 'required|in:Reguler,Express',
+            'nilai_cod' => 'required|numeric|min:0',
+            'zona_manual' => 'nullable|exists:zona_tarif,id',
         ]);
 
         // Menentukan zona tujuan.
@@ -117,7 +115,7 @@ class PaketController extends Controller
             if (!$zonaTarif) {
                 return back()
                     ->withErrors([
-                        'zona_manual' => 'Zona tidak ditemukan. Silakan pilih zona secara manual.'
+                        'zona_manual' => 'Zona tidak ditemukan. Silakan pilih zona secara manual.',
                     ])
                     ->withInput();
             }
@@ -142,8 +140,7 @@ class PaketController extends Controller
             $ongkir = (int) ($ongkir * 1.5);
         }
 
-
-        // menghitung biaya COD 
+        // menghitung biaya COD
         $biayaCod = 0;
 
         // jika nilai COD lebih dari 0, biaya COD dihitung sebagai 2%
@@ -155,96 +152,86 @@ class PaketController extends Controller
             );
         }
 
+        // Menyimpan pelanggan, paket, dan riwayat dalam satu transaksi.
+        $paket = DB::transaction(function () use ($validated, $zonaTarif, $beratTagih, $tarifPerKg, $ongkir, $biayaCod, $kodeZonaManual, $perluVerifikasi) {
 
-    // Menyimpan pelanggan, paket, dan riwayat dalam satu transaksi.
-    $paket = DB::transaction(function () use (
-        $validated,
-        $zonaTarif,
-        $beratTagih,
-        $tarifPerKg,
-        $ongkir,
-        $biayaCod,
-        $kodeZonaManual,
-        $perluVerifikasi
-    ) {
+            // 1. Menentukan pelanggan pengirim.
+            if (!empty($validated['pelanggan_id'])) {
 
-    // 1. Menentukan pelanggan pengirim.
-    if (!empty($validated['pelanggan_id'])) {
+                // Jika memilih pelanggan terdaftar, gunakan pelanggan tersebut.
+                $pengirim = Pelanggan::findOrFail($validated['pelanggan_id']);
 
-        // Jika memilih pelanggan terdaftar, gunakan pelanggan tersebut.
-        $pengirim = Pelanggan::findOrFail($validated['pelanggan_id']);
+            } else {
 
-    } else {
+                // Jika tidak memilih pelanggan, cari berdasarkan nomor telepon.
+                // Jika belum ada, buat pelanggan baru.
+                $pengirim = Pelanggan::firstOrCreate(
+                    ['telepon' => $validated['telepon_pengirim']],
+                    [
+                        'nama' => $validated['nama_pengirim'],
+                        'alamat' => $validated['alamat_pengirim'],
+                    ]
+                );
+            }
 
-        // Jika tidak memilih pelanggan, cari berdasarkan nomor telepon.
-        // Jika belum ada, buat pelanggan baru.
-        $pengirim = Pelanggan::firstOrCreate(
-            ['telepon' => $validated['telepon_pengirim']],
-            [
-                'nama' => $validated['nama_pengirim'],
-                'alamat' => $validated['alamat_pengirim'],
-            ]
-        );
-    }
+            // 2. Buat nomor resi otomatis.
+            $nomorResi = $this->buatNomorResi();
 
-    // 2. Buat nomor resi otomatis.
-    $nomorResi = $this->buatNomorResi();
+            // 3. Simpan data paket.
+            $paket = Paket::create([
+                'no_resi' => $nomorResi,
+                'tanggal_masuk' => now()->toDateString(),
+                'pengirim_id' => $pengirim->id,
+                'kurir_id' => null,
+                'dibuat_oleh' => auth()->id(),
+                'zona_tarif_id' => $zonaTarif->id,
+                'zona_manual' => $kodeZonaManual,
+                'perlu_verifikasi' => $perluVerifikasi,
 
-    // 3. Simpan data paket.
-    $paket = Paket::create([
-        'no_resi' => $nomorResi,
-        'tanggal_masuk' => now()->toDateString(),
-        'pengirim_id' => $pengirim->id,
-        'kurir_id' => null,
-        'dibuat_oleh' => auth()->id(),
-        'zona_tarif_id' => $zonaTarif->id,
-        'zona_manual' => $kodeZonaManual,
-        'perlu_verifikasi' => $perluVerifikasi,
+                'penerima_nama' => $validated['penerima_nama'],
+                'penerima_telepon' => $validated['penerima_telepon'],
+                'penerima_alamat' => $validated['penerima_alamat'],
+                'kota_tujuan' => $validated['kota_tujuan'],
 
-        'penerima_nama' => $validated['penerima_nama'],
-        'penerima_telepon' => $validated['penerima_telepon'],
-        'penerima_alamat' => $validated['penerima_alamat'],
-        'kota_tujuan' => $validated['kota_tujuan'],
+                'berat_kg' => $validated['berat_kg'],
+                'berat_tagih' => $beratTagih,
+                'tarif_per_kg' => $tarifPerKg,
+                'ongkir' => $ongkir,
 
-        'berat_kg' => $validated['berat_kg'],
-        'berat_tagih' => $beratTagih,
-        'tarif_per_kg' => $tarifPerKg,
-        'ongkir' => $ongkir,
+                'layanan' => $validated['layanan'],
+                'nilai_cod' => $validated['nilai_cod'],
+                'biaya_cod' => $biayaCod,
 
-        'layanan' => $validated['layanan'],
-        'nilai_cod' => $validated['nilai_cod'],
-        'biaya_cod' => $biayaCod,
+                'status' => 'Diterima',
+                'jumlah_gagal' => 0,
+            ]);
 
-        'status' => 'Diterima',
-        'jumlah_gagal' => 0,
-    ]);
+            // 4. Catat riwayat pertama paket.
+            RiwayatPaket::create([
+                'paket_id' => $paket->id,
+                'pengguna_id' => auth()->id(),
+                'status_dari' => null,
+                'status' => 'Diterima',
+                'catatan' => 'Paket diterima di loket.',
+            ]);
 
-    // 4. Catat riwayat pertama paket.
-    RiwayatPaket::create([
-        'paket_id' => $paket->id,
-        'pengguna_id' => auth()->id(),
-        'status_dari' => null,
-        'status' => 'Diterima',
-        'catatan' => 'Paket diterima di loket.',
-    ]);
+            return $paket;
+        });
 
-        return $paket;
-    });
-
-
-    // 5. Jika berhasil, kembali ke halaman daftar paket.
-    return redirect()
-        ->route('paket.index')
-        ->with(
-            'success',
-            'Paket berhasil disimpan. Nomor resi: ' . $paket->no_resi
-        );
+        // 5. Jika berhasil, kembali ke halaman daftar paket.
+        return redirect()
+            ->route('paket.index')
+            ->with(
+                'success',
+                'Paket berhasil disimpan. Nomor resi: ' . $paket->no_resi
+            );
 
     }
+
     private function buatNomorResi(): string
     {
         // Ambil tanggal hari ini dalam format YYYY-MM-DD
-        $tanggal = now()->toDateString(); 
+        $tanggal = now()->toDateString();
 
         // Jika tanggal belum ada di tabel, buat penghitung baru dengan nilai 0.
         DB::table('urutan_resi')->insertOrIgnore([
@@ -273,7 +260,6 @@ class PaketController extends Controller
         return 'PKE-' . now()->format('ymd') . '-' . str_pad($nomor, 4, '0', STR_PAD_LEFT);
     }
 
-
     public function hitungTarif(Request $request, PusatWilayahService $pusatWilayahService)
     {
         $validated = $request->validate([
@@ -292,7 +278,7 @@ class PaketController extends Controller
 
         } else {
 
-            //2. Meminta zona secara otomatis melalui API
+            // 2. Meminta zona secara otomatis melalui API
             $kodeZona = $pusatWilayahService->ambilZona($validated['kota_tujuan']);
 
             if ($kodeZona === null) {
@@ -311,7 +297,7 @@ class PaketController extends Controller
                     'perlu_zona_manual' => true,
                 ], 422);
             }
-        }   
+        }
 
         // 3. Menghitung berat tagih
         $beratTagih = max(1, ceil($validated['berat_kg']));
@@ -341,7 +327,6 @@ class PaketController extends Controller
             'biaya_cod' => $biayaCod,
         ]);
     }
-
 
     public function ubahKeTransit(Paket $paket)
     {
@@ -387,5 +372,33 @@ class PaketController extends Controller
         ]);
 
         return view('paket.show', compact('paket'));
+    }
+
+    public function prosesRetur(Paket $paket)
+    {
+        // Retur hanya boleh diproses setelah kegagalan pengiriman kedua.
+        if ($paket->status !== 'Gagal Kirim' || $paket->jumlah_gagal < 2) {
+            return back()->withErrors([
+                'status' => 'Retur hanya dapat diproses untuk paket yang gagal kirim dua kali.',
+            ]);
+        }
+
+        DB::transaction(function () use ($paket) {
+            $statusSebelumnya = $paket->status;
+
+            $paket->update([
+                'status' => 'Retur',
+            ]);
+
+            // Status Retur dicatat sebagai tindakan final oleh Admin.
+            $paket->riwayat()->create([
+                'pengguna_id' => auth()->id(),
+                'status_dari' => $statusSebelumnya,
+                'status' => 'Retur',
+                'catatan' => 'Paket diproses Retur oleh Admin setelah gagal kirim dua kali.',
+            ]);
+        });
+
+        return back()->with('success', 'Paket berhasil diproses menjadi Retur.');
     }
 }
