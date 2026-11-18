@@ -11,8 +11,16 @@ class Kurir extends Model
     protected $fillable = [
         'pengguna_id',
         'kode_kurir',
+        'area_tugas',
         'aktif',
     ];
+
+    protected function casts(): array
+    {
+        return [
+            'aktif' => 'boolean',
+        ];
+    }
 
     public function pengguna()
     {

@@ -46,11 +46,6 @@
 
                 <a href="#"
                     class="block rounded-lg px-3 py-2.5 text-sm font-medium text-blue-100 transition hover:bg-[#1D70A2]">
-                    Manajemen Retur
-                </a>
-
-                <a href="#"
-                    class="block rounded-lg px-3 py-2.5 text-sm font-medium text-blue-100 transition hover:bg-[#1D70A2]">
                     Setoran COD
                 </a>
 
@@ -66,7 +61,7 @@
                     Data Pelanggan
                 </a>
 
-                <a href="#"
+                <a href="{{ route('admin.kurir.index') }}"
                    class="block rounded-lg px-3 py-2.5 text-sm font-medium text-blue-100 transition hover:bg-[#1D70A2]">
                     Data Kurir
                 </a>

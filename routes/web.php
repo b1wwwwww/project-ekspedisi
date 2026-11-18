@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\KurirController;
 use App\Http\Controllers\Admin\PaketController;
 use App\Http\Controllers\Admin\PelangganController;
 use App\Http\Controllers\Admin\PenugasanKurirController;
@@ -89,6 +90,25 @@ Route::middleware(['auth', 'wajib.ganti.password'])->group(function () {
 
         Route::patch('/paket/{paket}/transit', [PaketController::class, 'ubahKeTransit'])
             ->name('paket.transit');
+
+        // Kelola akun dan profil Kurir.
+        Route::get('/admin/kurir', [KurirController::class, 'index'])
+            ->name('admin.kurir.index');
+
+        Route::get('/admin/kurir/create', [KurirController::class, 'create'])
+            ->name('admin.kurir.create');
+
+        Route::post('/admin/kurir', [KurirController::class, 'store'])
+            ->name('admin.kurir.store');
+
+        Route::get('/admin/kurir/{kurir}/edit', [KurirController::class, 'edit'])
+            ->name('admin.kurir.edit');
+
+        Route::put('/admin/kurir/{kurir}', [KurirController::class, 'update'])
+            ->name('admin.kurir.update');
+
+        Route::patch('/admin/kurir/{kurir}/status', [KurirController::class, 'toggleStatus'])
+            ->name('admin.kurir.toggle-status');
 
     });
 
