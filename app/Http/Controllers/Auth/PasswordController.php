@@ -20,9 +20,19 @@ class PasswordController extends Controller
             'password' => ['required', Password::defaults(), 'confirmed'],
         ]);
 
-        $request->user()->update([
+        $pengguna = $request->user();
+
+        $perubahan = [
             'password' => Hash::make($validated['password']),
-        ]);
+        ];
+
+        // Jika yang mengganti password adalah Kurir,
+        // tandai bahwa kewajiban mengganti password sudah selesai.
+        if ($pengguna->role === 'kurir') {
+            $perubahan['wajib_ganti_password'] = false;
+        }
+
+        $pengguna->update($perubahan);
 
         return back()->with('status', 'password-updated');
     }

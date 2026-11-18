@@ -1,76 +1,97 @@
 <?php
 
-use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\Admin\PelangganController;
-use App\Http\Controllers\Admin\PaketController;
-use App\Http\Controllers\Admin\PenugasanKurirController;
-use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\DashboardController;
-
+use App\Http\Controllers\Admin\PaketController;
+use App\Http\Controllers\Admin\PelangganController;
+use App\Http\Controllers\Admin\PenugasanKurirController;
+use App\Http\Controllers\Kurir\PenugasanController;
+use App\Http\Controllers\ProfileController;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
     return view('welcome');
 });
 
-Route::get('/dashboard', function () {
-    return view('dashboard');
+Route::get('/dashboard', function (Request $request) {
+    if ($request->user()->role === 'kurir') {
+        return redirect()->route('kurir.penugasan.index');
+    }
+
+    return redirect()->route('admin.dashboard');
 })->middleware('auth')->name('dashboard');
 
-Route::middleware('auth')->group(function () {
+Route::middleware(['auth', 'wajib.ganti.password'])->group(function () {
 
-    // Dashboard Admin
-    Route::get('/admin', [DashboardController::class, 'index'])
-    ->name('admin.dashboard');
+    // Profile dapat diakses oleh Admin, Manajer, dan Kurir.
+    Route::get('/profile', [ProfileController::class, 'edit'])
+        ->name('profile.edit');
 
-    // Profile
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    Route::patch('/profile', [ProfileController::class, 'update'])
+        ->name('profile.update');
 
-    // List Daftar Pelanggan
-    Route::get('/pelanggan', [PelangganController::class, 'index'])
-        ->name('pelanggan.index');
+    Route::delete('/profile', [ProfileController::class, 'destroy'])
+        ->name('profile.destroy');
 
-   
+    // Halaman khusus Kurir.
+    Route::middleware('role:kurir')->group(function () {
 
-        // Halaman Penugasan Kurir
-    Route::get('/admin/penugasan-kurir', [PenugasanKurirController::class, 'index'])
-        ->name('admin.penugasan-kurir.index');
+        Route::get('/kurir/penugasan', [PenugasanController::class, 'index'])
+            ->name('kurir.penugasan.index');
 
-        // Menyimpan penugasan kurir untuk paket
-    Route::post('/admin/penugasan-kurir', [PenugasanKurirController::class, 'store'])
-        ->name('admin.penugasan-kurir.store');
+        Route::get('/kurir/penugasan/{id}', [PenugasanController::class, 'show'])
+            ->name('kurir.penugasan.show');
 
+        Route::post('/kurir/penugasan/{id}/status', [PenugasanController::class, 'updateStatus'])
+            ->name('kurir.penugasan.update-status');
 
-    Route::get('/paket', [PaketController::class, 'index'])
-        ->name('paket.index');
+    });
 
-    Route::get('/paket/create', [PaketController::class, 'create'])
-        ->name('paket.create');
+    // Halaman khusus Admin dan Manajer.
+    Route::middleware('role:admin,manajer')->group(function () {
 
-    Route::get('/paket/hitung-tarif', [PaketController::class, 'hitungTarif'])
-        ->name('paket.hitung-tarif');
+        // Dashboard Admin
+        Route::get('/admin', [DashboardController::class, 'index'])
+            ->name('admin.dashboard');
 
-    Route::get('/paket/{paket}', [PaketController::class, 'show'])
-        ->name('paket.show');
+        // Data Pelanggan
+        Route::get('/pelanggan', [PelangganController::class, 'index'])
+            ->name('pelanggan.index');
 
-    Route::post('/paket', [PaketController::class, 'store'])
-        ->name('paket.store');
+        Route::get('/pelanggan/create', [PelangganController::class, 'create'])
+            ->name('pelanggan.create');
 
-    Route::patch('/paket/{paket}/transit', [PaketController::class, 'ubahKeTransit'])
-        ->name('paket.transit');
-        // Mengubah status paket menjadi "Transit"
-        // pake patch hanya memperbarui sebagian data paket, yaitu statusnya.
-    Route::patch('/paket/{paket}/transit', [PaketController::class, 'ubahKeTransit'])
-        ->name('paket.transit'); 
+        Route::post('/pelanggan', [PelangganController::class, 'store'])
+            ->name('pelanggan.store');
 
+        // Penugasan Kurir
+        Route::get('/admin/penugasan-kurir', [PenugasanKurirController::class, 'index'])
+            ->name('admin.penugasan-kurir.index');
 
-    // Tambah Pelanggan
-    Route::get('/pelanggan/create', [PelangganController::class, 'create'])
-        ->name('pelanggan.create');
+        Route::post('/admin/penugasan-kurir', [PenugasanKurirController::class, 'store'])
+            ->name('admin.penugasan-kurir.store');
 
-    Route::post('/pelanggan', [PelangganController::class, 'store'])
-        ->name('pelanggan.store');
+        // Data Paket
+        Route::get('/paket', [PaketController::class, 'index'])
+            ->name('paket.index');
+
+        Route::get('/paket/create', [PaketController::class, 'create'])
+            ->name('paket.create');
+
+        Route::get('/paket/hitung-tarif', [PaketController::class, 'hitungTarif'])
+            ->name('paket.hitung-tarif');
+
+        Route::get('/paket/{paket}', [PaketController::class, 'show'])
+            ->name('paket.show');
+
+        Route::post('/paket', [PaketController::class, 'store'])
+            ->name('paket.store');
+
+        Route::patch('/paket/{paket}/transit', [PaketController::class, 'ubahKeTransit'])
+            ->name('paket.transit');
+
+    });
+
 });
 
 require __DIR__.'/auth.php';

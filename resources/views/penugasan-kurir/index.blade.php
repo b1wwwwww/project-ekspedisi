@@ -246,10 +246,6 @@
                                     {{ $item->kode_kurir }}
                                 </p>
 
-                                <p class="mt-1 text-xs text-slate-500">
-                                    Area: {{ $item->area_tugas }}
-                                </p>
-
                                 <div class="mt-3">
                                     <div class="mb-1 flex justify-between text-xs">
                                         <span class="text-slate-500">

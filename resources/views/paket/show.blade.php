@@ -180,13 +180,6 @@
                         </p>
                     </div>
 
-                    <div>
-                        <p class="text-xs text-slate-500 mb-1">Area Tugas</p>
-                        <p class="font-semibold text-slate-700">
-                            {{ $paket->kurir->area_tugas ?? '-' }}
-                        </p>
-                    </div>
-
                 </div>
             @else
                 <p class="text-sm text-slate-500">
