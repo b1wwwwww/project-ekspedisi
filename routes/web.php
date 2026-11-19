@@ -9,6 +9,7 @@ use App\Http\Controllers\Kurir\PenugasanController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Manajer\TarifController;
 use App\Http\Controllers\Manajer\DashboardController as ManajerDashboardController; // Alias untuk menghindari konflik nama dengan DashboardController Admin
+use App\Http\Controllers\Admin\SetoranCodController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -160,6 +161,12 @@ Route::middleware(['auth', 'wajib.ganti.password'])->group(function () {
 
         Route::patch('/paket/{paket}/retur', [PaketController::class, 'prosesRetur'])
             ->name('paket.retur');
+
+        Route::get('/admin/setoran-cod', [SetoranCodController::class, 'index'])
+            ->name('admin.setoran-cod.index');
+
+        Route::post('/admin/setoran-cod', [SetoranCodController::class, 'store'])
+            ->name('admin.setoran-cod.store');
 
     });
 
