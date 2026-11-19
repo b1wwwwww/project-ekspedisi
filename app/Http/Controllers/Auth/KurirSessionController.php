@@ -11,36 +11,39 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
-use Illuminate\View\View;
 
 class KurirSessionController extends Controller
 {
-    // Menampilkan halaman login Kurir.
-    public function create(): View
+    // Menampilkan halaman login terpadu dengan tab kurir aktif.
+    public function create(): RedirectResponse
     {
-        return view('auth.kurir-login');
+        session()->flash('login_tab', 'kurir');
+
+        return redirect()->route('login');
     }
 
     // Memproses login Kurir.
     public function store(Request $request): RedirectResponse
     {
-        $validated = $request->validate([
+        $request->validate([
             'kode_kurir' => ['required', 'string'],
             'password' => ['required', 'string'],
         ]);
 
-        $throttleKey = Str::lower($validated['kode_kurir'])
-            .'|'.$request->ip();
+        $kodeKurir = $request->input('kode_kurir');
+        $throttleKey = Str::lower($kodeKurir).'|'.$request->ip();
 
         if (RateLimiter::tooManyAttempts($throttleKey, 5)) {
+            session()->flash('login_tab', 'kurir');
+
             throw ValidationException::withMessages([
                 'kode_kurir' => 'Terlalu banyak percobaan login. Silakan coba lagi nanti.',
-            ]);
+            ])->redirectTo(route('login'));
         }
 
         // Mencari kurir yang aktif berdasarkan kode kurir.
         $kurir = Kurir::with('pengguna')
-            ->where('kode_kurir', $validated['kode_kurir'])
+            ->where('kode_kurir', $kodeKurir)
             ->where('aktif', true)
             ->first();
 
@@ -49,14 +52,15 @@ class KurirSessionController extends Controller
         // Memastikan akun benar-benar milik Kurir.
         $berhasil = $pengguna
             && $pengguna->role === 'kurir'
-            && Hash::check($validated['password'], $pengguna->password);
+            && Hash::check($request->input('password'), $pengguna->password);
 
         if (! $berhasil) {
             RateLimiter::hit($throttleKey);
+            session()->flash('login_tab', 'kurir');
 
             throw ValidationException::withMessages([
                 'kode_kurir' => 'Kode Kurir atau password salah.',
-            ]);
+            ])->redirectTo(route('login'));
         }
 
         RateLimiter::clear($throttleKey);
@@ -81,6 +85,8 @@ class KurirSessionController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return redirect()->route('kurir.login');
+        session()->flash('login_tab', 'kurir');
+
+        return redirect()->route('login');
     }
 }
