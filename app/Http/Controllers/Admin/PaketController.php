@@ -7,7 +7,9 @@ use App\Models\Paket;
 use App\Models\Pelanggan;
 use App\Models\RiwayatPaket;
 use App\Models\ZonaTarif;
+use App\Rules\NomorTeleponValid;
 use App\Services\PusatWilayahService;
+use App\Services\TeleponNormalizer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -68,14 +70,17 @@ class PaketController extends Controller
         Request $request,
         PusatWilayahService $pusatWilayahService
     ) {
+        $this->normalizeTelepon($request, 'telepon_pengirim');
+        $this->normalizeTelepon($request, 'penerima_telepon');
+
         $validated = $request->validate([
             'pelanggan_id' => 'nullable|exists:pelanggan,id',
-            'telepon_pengirim' => 'required|string|max:20',
+            'telepon_pengirim' => ['required', 'string', 'max:20', new NomorTeleponValid],
             'nama_pengirim' => 'required|string|max:255',
             'alamat_pengirim' => 'nullable|string',
 
             'penerima_nama' => 'required|string|max:255',
-            'penerima_telepon' => 'required|string|max:20',
+            'penerima_telepon' => ['required', 'string', 'max:20', new NomorTeleponValid],
             'penerima_alamat' => 'required|string',
             'kota_tujuan' => 'required|string|max:255',
 
@@ -88,7 +93,7 @@ class PaketController extends Controller
         // Menentukan zona tujuan.
         $zonaManualDipakai = false;
 
-        if (!empty($validated['zona_manual'])) {
+        if (! empty($validated['zona_manual'])) {
 
             // Jika admin memilih zona manual, cari berdasarkan ID.
             $zonaTarif = ZonaTarif::find($validated['zona_manual']);
@@ -112,7 +117,7 @@ class PaketController extends Controller
             }
 
             // Jika API gagal, minta admin memilih zona manual.
-            if (!$zonaTarif) {
+            if (! $zonaTarif) {
                 return back()
                     ->withErrors([
                         'zona_manual' => 'Zona tidak ditemukan. Silakan pilih zona secara manual.',
@@ -156,7 +161,7 @@ class PaketController extends Controller
         $paket = DB::transaction(function () use ($validated, $zonaTarif, $beratTagih, $tarifPerKg, $ongkir, $biayaCod, $kodeZonaManual, $perluVerifikasi) {
 
             // 1. Menentukan pelanggan pengirim.
-            if (!empty($validated['pelanggan_id'])) {
+            if (! empty($validated['pelanggan_id'])) {
 
                 // Jika memilih pelanggan terdaftar, gunakan pelanggan tersebut.
                 $pengirim = Pelanggan::findOrFail($validated['pelanggan_id']);
@@ -223,7 +228,7 @@ class PaketController extends Controller
             ->route('paket.index')
             ->with(
                 'success',
-                'Paket berhasil disimpan. Nomor resi: ' . $paket->no_resi
+                'Paket berhasil disimpan. Nomor resi: '.$paket->no_resi
             );
 
     }
@@ -257,7 +262,17 @@ class PaketController extends Controller
 
         // Format: PKE-YYMMDD-0001
         // Mengubah Angka 1 menjadi 0001, angka 12 menjadi 012.
-        return 'PKE-' . now()->format('ymd') . '-' . str_pad($nomor, 4, '0', STR_PAD_LEFT);
+        return 'PKE-'.now()->format('ymd').'-'.str_pad($nomor, 4, '0', STR_PAD_LEFT);
+    }
+
+    private function normalizeTelepon(Request $request, string $field): void
+    {
+        $telepon = TeleponNormalizer::normalize($request->input($field));
+
+        // Jangan mengganti input invalid dengan null supaya pesan validasi tetap jelas.
+        if ($telepon !== null) {
+            $request->merge([$field => $telepon]);
+        }
     }
 
     public function hitungTarif(Request $request, PusatWilayahService $pusatWilayahService)
@@ -271,7 +286,7 @@ class PaketController extends Controller
         ]);
 
         // 1. Menentukan zona tarif berdasarkan kota tujuan atau zona manual.
-        if (!empty($validated['zona_manual'])) {
+        if (! empty($validated['zona_manual'])) {
 
             // Menggunakan zona pilihan Admin
             $zonaTarif = ZonaTarif::findOrFail($validated['zona_manual']);
@@ -291,7 +306,7 @@ class PaketController extends Controller
             $zonaTarif = ZonaTarif::where('kode_zona', $kodeZona)->first();
 
             // Jika kode zona dari API tidak ditemukan, Admin memilih zona secara manual.
-            if (!$zonaTarif) {
+            if (! $zonaTarif) {
                 return response()->json([
                     'message' => 'Tarif zona belum tersedia. Silakan pilih zona secara manual.',
                     'perlu_zona_manual' => true,

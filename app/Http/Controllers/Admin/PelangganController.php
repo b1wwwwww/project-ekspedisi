@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Pelanggan;
+use App\Rules\NomorTeleponValid;
+use App\Services\TeleponNormalizer;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 
@@ -40,9 +42,11 @@ class PelangganController extends Controller
 
     public function store(Request $request)
     {
+        $this->normalizeTelepon($request);
+
         $validated = $request->validate([
             'nama' => ['required', 'string', 'max:100'],
-            'telepon' => ['required', 'string', 'max:20', 'unique:pelanggan,telepon'],
+            'telepon' => ['required', 'string', 'max:20', 'unique:pelanggan,telepon', new NomorTeleponValid],
             'alamat' => ['nullable', 'string'],
         ]);
 
@@ -53,7 +57,6 @@ class PelangganController extends Controller
             ->with('success', 'Pelanggan berhasil ditambahkan.');
     }
 
-
     public function edit(Pelanggan $pelanggan)
     {
         return view('pelanggan.edit', compact('pelanggan'));
@@ -61,6 +64,8 @@ class PelangganController extends Controller
 
     public function update(Request $request, Pelanggan $pelanggan)
     {
+        $this->normalizeTelepon($request);
+
         $validated = $request->validate([
             'nama' => ['required', 'string', 'max:100'],
             'telepon' => [
@@ -68,6 +73,7 @@ class PelangganController extends Controller
                 'string',
                 'max:20',
                 Rule::unique('pelanggan', 'telepon')->ignore($pelanggan->id),
+                new NomorTeleponValid,
                 // validasi no telp tidak boleh sama
             ],
             'alamat' => ['nullable', 'string'],
@@ -78,5 +84,15 @@ class PelangganController extends Controller
         return redirect()
             ->route('pelanggan.index')
             ->with('success', 'Data pelanggan berhasil diperbarui.');
+    }
+
+    private function normalizeTelepon(Request $request): void
+    {
+        $telepon = TeleponNormalizer::normalize($request->input('telepon'));
+
+        // Input invalid dibiarkan agar NomorTeleponValid menampilkan pesan yang spesifik.
+        if ($telepon !== null) {
+            $request->merge(['telepon' => $telepon]);
+        }
     }
 }

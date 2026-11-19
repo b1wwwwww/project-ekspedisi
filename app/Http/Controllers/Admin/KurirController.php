@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Kurir;
 use App\Models\User;
+use App\Rules\NomorTeleponValid;
+use App\Services\TeleponNormalizer;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -44,9 +46,11 @@ class KurirController extends Controller
     // Membuat satu akun pengguna dan satu profil Kurir dalam satu transaksi.
     public function store(Request $request): RedirectResponse
     {
+        $this->normalizeTelepon($request);
+
         $validated = $request->validate([
             'nama' => ['required', 'string', 'max:255'],
-            'telepon' => ['required', 'string', 'max:20', 'unique:users,telepon'],
+            'telepon' => ['required', 'string', 'max:20', 'unique:users,telepon', new NomorTeleponValid],
             'email' => ['nullable', 'email', 'max:255', 'unique:users,email'],
             'kode_kurir' => ['required', 'string', 'max:50', 'unique:kurir,kode_kurir'],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
@@ -88,9 +92,11 @@ class KurirController extends Controller
     {
         $pengguna = $kurir->pengguna;
 
+        $this->normalizeTelepon($request);
+
         $validated = $request->validate([
             'nama' => ['required', 'string', 'max:255'],
-            'telepon' => ['required', 'string', 'max:20', Rule::unique('users', 'telepon')->ignore($pengguna->id)],
+            'telepon' => ['required', 'string', 'max:20', Rule::unique('users', 'telepon')->ignore($pengguna->id), new NomorTeleponValid],
             'email' => ['nullable', 'email', 'max:255', Rule::unique('users', 'email')->ignore($pengguna->id)],
             'kode_kurir' => ['required', 'string', 'max:50', Rule::unique('kurir', 'kode_kurir')->ignore($kurir->id)],
             'password' => ['nullable', 'string', 'min:8', 'confirmed'],
@@ -116,6 +122,16 @@ class KurirController extends Controller
         return redirect()
             ->route('admin.kurir.index')
             ->with('success', 'Data Kurir berhasil diperbarui.');
+    }
+
+    private function normalizeTelepon(Request $request): void
+    {
+        $telepon = TeleponNormalizer::normalize($request->input('telepon'));
+
+        // Input invalid dibiarkan agar NomorTeleponValid menampilkan pesan yang spesifik.
+        if ($telepon !== null) {
+            $request->merge(['telepon' => $telepon]);
+        }
     }
 
     // Mengaktifkan atau menonaktifkan akun Kurir tanpa menghapus data.

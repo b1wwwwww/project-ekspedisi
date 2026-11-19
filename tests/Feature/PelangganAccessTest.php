@@ -79,6 +79,24 @@ class PelangganAccessTest extends TestCase
         ]);
     }
 
+    public function test_admin_store_normalizes_customer_phone_number(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin']);
+
+        $this->actingAs($admin)
+            ->post(route('pelanggan.store'), [
+                'nama' => 'Andi',
+                'telepon' => '+628123456789',
+                'alamat' => 'Bandung',
+            ])
+            ->assertRedirect(route('pelanggan.index'));
+
+        $this->assertDatabaseHas('pelanggan', [
+            'nama' => 'Andi',
+            'telepon' => '08123456789',
+        ]);
+    }
+
     public function test_manager_cannot_update_customer(): void
     {
         $manajer = User::factory()->create(['role' => 'manajer']);
