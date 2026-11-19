@@ -1,19 +1,19 @@
 <?php
 
 use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\ImportDataController;
 use App\Http\Controllers\Admin\KurirController;
 use App\Http\Controllers\Admin\PaketController;
 use App\Http\Controllers\Admin\PelangganController;
 use App\Http\Controllers\Admin\PenugasanKurirController;
-use App\Http\Controllers\Kurir\PenugasanController;
-use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\Manajer\TarifController;
-use App\Http\Controllers\Manajer\DashboardController as ManajerDashboardController; // Alias untuk menghindari konflik nama dengan DashboardController Admin
 use App\Http\Controllers\Admin\SetoranCodController;
-use App\Http\Controllers\Manajer\LaporanController;
+use App\Http\Controllers\Kurir\PenugasanController;
+use App\Http\Controllers\Manajer\DashboardController as ManajerDashboardController;
+use App\Http\Controllers\Manajer\LaporanController; // Alias untuk menghindari konflik nama dengan DashboardController Admin
+use App\Http\Controllers\Manajer\TarifController;
+use App\Http\Controllers\ProfileController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-
 
 Route::get('/', function () {
     return view('welcome');
@@ -49,8 +49,7 @@ Route::middleware(['auth', 'wajib.ganti.password'])->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])
         ->name('profile.destroy');
 
-
-    // Khusus Manajer: dashboard 
+    // Khusus Manajer: dashboard
     Route::middleware('role:manajer')->group(function () {
 
         Route::get('/manajer', [ManajerDashboardController::class, 'index'])
@@ -68,7 +67,6 @@ Route::middleware(['auth', 'wajib.ganti.password'])->group(function () {
 
         Route::get('/manajer/laporan/rekap-cod', [LaporanController::class, 'rekapCod'])
             ->name('manajer.laporan.rekap-cod');
-        
 
     });
 
@@ -145,6 +143,13 @@ Route::middleware(['auth', 'wajib.ganti.password'])->group(function () {
         Route::patch('/admin/kurir/{kurir}/status', [KurirController::class, 'toggleStatus'])
             ->name('admin.kurir.toggle-status');
 
+        // Sementara hanya menerima CSV pelanggan; importer lain akan ditambahkan pada tahap berikutnya.
+        Route::get('/admin/import', [ImportDataController::class, 'index'])
+            ->name('admin.import.index');
+
+        Route::post('/admin/import', [ImportDataController::class, 'store'])
+            ->name('admin.import.store');
+
         // Penugasan Kurir
         Route::get('/admin/penugasan-kurir', [PenugasanKurirController::class, 'index'])
             ->name('admin.penugasan-kurir.index');
@@ -184,4 +189,4 @@ Route::middleware(['auth', 'wajib.ganti.password'])->group(function () {
 
 });
 
-require __DIR__ . '/auth.php';
+require __DIR__.'/auth.php';
