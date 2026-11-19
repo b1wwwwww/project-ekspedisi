@@ -20,7 +20,7 @@ class PenugasanController extends Controller
         // Mencari data Kurir berdasarkan akun yang sedang login.
         $kurir = Kurir::where('pengguna_id', $pengguna->id)->firstOrFail();
 
-        // Mengambil semua paket yang ditugaskan kepada Kurir tersebut.
+        // Hanya mengambil paket milik Kurir yang sedang login.
         $paket = $kurir->paket()->latest()->get();
 
         return view('kurir.penugasan.index', compact('paket'));
@@ -35,7 +35,7 @@ class PenugasanController extends Controller
         // Mencari data Kurir berdasarkan akun pengguna.
         $kurir = Kurir::where('pengguna_id', $pengguna->id)->firstOrFail();
 
-        // Mengambil paket berdasarkan ID dan memastikan paket tersebut milik Kurir yang login.
+        // Kurir tidak bisa melihat detail paket milik Kurir lain hanya dengan mengganti ID URL.
         $paket = $kurir->paket()
             ->with(['pengirim', 'zonaTarif', 'riwayat'])
             ->findOrFail($id);

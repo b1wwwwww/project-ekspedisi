@@ -29,7 +29,7 @@ Route::get('/dashboard', function (Request $request) {
     }
 
     if ($role === 'manajer') {
-        return view('manajer.dashboard');
+        return redirect()->route('manajer.dashboard');
     }
 
     abort(403);
