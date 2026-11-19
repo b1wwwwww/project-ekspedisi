@@ -7,8 +7,11 @@ use App\Http\Controllers\Admin\PelangganController;
 use App\Http\Controllers\Admin\PenugasanKurirController;
 use App\Http\Controllers\Kurir\PenugasanController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\Manajer\TarifController;
+use App\Http\Controllers\Manajer\DashboardController as ManajerDashboardController; // Alias untuk menghindari konflik nama dengan DashboardController Admin
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+
 
 Route::get('/', function () {
     return view('welcome');
@@ -26,7 +29,7 @@ Route::get('/dashboard', function (Request $request) {
     }
 
     if ($role === 'manajer') {
-        return view('dashboard');
+        return view('manajer.dashboard');
     }
 
     abort(403);
@@ -43,6 +46,18 @@ Route::middleware(['auth', 'wajib.ganti.password'])->group(function () {
 
     Route::delete('/profile', [ProfileController::class, 'destroy'])
         ->name('profile.destroy');
+
+
+    // Khusus Manajer: dashboard dan pengubahan tarif zona.
+    Route::middleware('role:manajer')->group(function () {
+
+        Route::get('/manajer', [ManajerDashboardController::class, 'index'])
+            ->name('manajer.dashboard');
+
+        Route::put('/manajer/tarif/{zonaTarif}', [TarifController::class, 'update'])
+            ->name('manajer.tarif.update');
+
+    });
 
     // Halaman khusus Kurir.
     Route::middleware('role:kurir')->group(function () {
@@ -68,6 +83,10 @@ Route::middleware(['auth', 'wajib.ganti.password'])->group(function () {
         // Data Kurir: dapat dilihat oleh Admin dan Manajer.
         Route::get('/admin/kurir', [KurirController::class, 'index'])
             ->name('admin.kurir.index');
+
+        // Daftar tarif dapat dilihat Admin dan Manajer.
+        Route::get('/tarif', [TarifController::class, 'index'])
+            ->name('tarif.index');
 
     });
 
