@@ -18,7 +18,7 @@
 
         <div class="text-right">
             <p class="text-sm font-semibold text-slate-800">
-                {{ auth()->user()->name ?? 'Admin' }}
+                {{ auth()->user()->nama ?? 'Admin' }}
             </p>
 
             <p class="text-xs text-slate-500">
@@ -28,7 +28,7 @@
 
         {{-- Avatar --}}
         <div class="flex h-10 w-10 items-center justify-center rounded-full bg-[#0A3656] text-sm font-bold text-white">
-            {{ strtoupper(substr(auth()->user()->name ?? 'A', 0, 1)) }}
+            {{ strtoupper(substr(auth()->user()->nama ?? 'A', 0, 1)) }}
         </div>
 
     </div>
