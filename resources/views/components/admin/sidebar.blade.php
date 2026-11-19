@@ -2,7 +2,7 @@
 
     {{-- Logo --}}
     <div class="mb-8 flex items-center gap-3 px-2">
-        <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-[#2F546F] text-xl font-bold text-[#0A3656]">
+        <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-[#2F546F] text-xl font-bold text-white">
             ⚡
         </div>
 
@@ -17,18 +17,27 @@
     </div>
 
     {{-- Navigasi --}}
-    <nav class="flex-1 space-y-7 overflow-y-auto">
+    <nav class="flex-1 space-y-6 overflow-y-auto">
+
+        {{-- Utama --}}
+        <div>
+            <p class="mb-2 px-3 text-xs font-bold uppercase tracking-wider text-blue-300">
+                Utama
+            </p>
+
+            <a href="{{ url('/admin') }}"
+                class="block rounded-lg px-3 py-2.5 text-sm font-medium transition hover:bg-[#1D70A2]">
+                Dashboard
+            </a>
+        </div>
 
         {{-- Operasional --}}
         <div>
+            <p class="mb-2 px-3 text-xs font-bold uppercase tracking-wider text-blue-300">
+                Operasional
+            </p>
 
             <div class="space-y-1">
-
-                <a href="{{ url('/admin') }}"
-                    class="block rounded-lg px-3 py-2.5 text-sm font-medium transition hover:bg-[#1D70A2]">
-                    Dashboard
-                </a>
-
                 <a href="{{ route('paket.create') }}"
                     class="block rounded-lg px-3 py-2.5 text-sm font-medium transition hover:bg-[#1D70A2]">
                     Input Paket
@@ -40,42 +49,43 @@
                 </a>
 
                 <a href="{{ route('admin.penugasan-kurir.index') }}"
-                    class="block rounded-lg px-3 py-2.5 text-sm font-medium text-blue-100 transition hover:bg-[#1D70A2]">
+                    class="block rounded-lg px-3 py-2.5 text-sm font-medium transition hover:bg-[#1D70A2]">
                     Penugasan Kurir
                 </a>
 
                 <a href="{{ route('admin.setoran-cod.index') }}"
-                    class="block rounded-lg px-3 py-2.5 text-sm font-medium text-blue-100 transition hover:bg-[#1D70A2]">
+                    class="block rounded-lg px-3 py-2.5 text-sm font-medium transition hover:bg-[#1D70A2]">
                     Setoran COD
                 </a>
-
             </div>
         </div>
 
         {{-- Data Master --}}
         <div>
-            <div class="">
+            <p class="mb-2 px-3 text-xs font-bold uppercase tracking-wider text-blue-300">
+                Data Master
+            </p>
 
+            <div class="space-y-1">
                 <a href="{{ route('pelanggan.index') }}"
-                   class="block rounded-lg px-3 py-2.5 text-sm font-medium transition hover:bg-[#1D70A2]">
+                    class="block rounded-lg px-3 py-2.5 text-sm font-medium transition hover:bg-[#1D70A2]">
                     Data Pelanggan
                 </a>
 
                 <a href="{{ route('admin.kurir.index') }}"
-                   class="block rounded-lg px-3 py-2.5 text-sm font-medium text-blue-100 transition hover:bg-[#1D70A2]">
+                    class="block rounded-lg px-3 py-2.5 text-sm font-medium transition hover:bg-[#1D70A2]">
                     Data Kurir
                 </a>
 
                 <a href="{{ route('tarif.index') }}"
-                   class="block rounded-lg px-3 py-2.5 text-sm font-medium text-blue-100 transition hover:bg-[#1D70A2]">
+                    class="block rounded-lg px-3 py-2.5 text-sm font-medium transition hover:bg-[#1D70A2]">
                     Tarif & Zona
                 </a>
 
                 <a href="#"
-                   class="block rounded-lg px-3 py-2.5 text-sm font-medium text-blue-100 transition hover:bg-[#1D70A2]">
+                    class="block rounded-lg px-3 py-2.5 text-sm font-medium text-blue-100 transition hover:bg-[#1D70A2]">
                     Impor CSV
                 </a>
-
             </div>
         </div>
 
@@ -85,7 +95,7 @@
     <div class="mt-6 space-y-1 border-t border-blue-400/30 pt-5">
 
         <a href="{{ url('/profile') }}"
-           class="block rounded-lg px-3 py-2.5 text-sm font-medium transition hover:bg-[#1D70A2]">
+            class="block rounded-lg px-3 py-2.5 text-sm font-medium transition hover:bg-[#1D70A2]">
             Ganti Password / Profil
         </a>
 
@@ -93,7 +103,7 @@
             @csrf
 
             <button type="submit"
-                    class="w-full rounded-lg px-3 py-2.5 text-left text-sm font-medium text-red-200 transition hover:bg-red-500/20">
+                class="w-full rounded-lg px-3 py-2.5 text-left text-sm font-medium text-red-200 transition hover:bg-red-500/20">
                 Keluar
             </button>
         </form>

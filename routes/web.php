@@ -10,6 +10,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Manajer\TarifController;
 use App\Http\Controllers\Manajer\DashboardController as ManajerDashboardController; // Alias untuk menghindari konflik nama dengan DashboardController Admin
 use App\Http\Controllers\Admin\SetoranCodController;
+use App\Http\Controllers\Manajer\LaporanController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -49,7 +50,7 @@ Route::middleware(['auth', 'wajib.ganti.password'])->group(function () {
         ->name('profile.destroy');
 
 
-    // Khusus Manajer: dashboard dan pengubahan tarif zona.
+    // Khusus Manajer: dashboard 
     Route::middleware('role:manajer')->group(function () {
 
         Route::get('/manajer', [ManajerDashboardController::class, 'index'])
@@ -57,6 +58,17 @@ Route::middleware(['auth', 'wajib.ganti.password'])->group(function () {
 
         Route::put('/manajer/tarif/{zonaTarif}', [TarifController::class, 'update'])
             ->name('manajer.tarif.update');
+
+        // Laporan Manajer (read-only).
+        Route::get('/manajer/laporan/pengiriman', [LaporanController::class, 'pengiriman'])
+            ->name('manajer.laporan.pengiriman');
+
+        Route::get('/manajer/laporan/pendapatan-zona', [LaporanController::class, 'pendapatanZona'])
+            ->name('manajer.laporan.pendapatan-zona');
+
+        Route::get('/manajer/laporan/rekap-cod', [LaporanController::class, 'rekapCod'])
+            ->name('manajer.laporan.rekap-cod');
+        
 
     });
 

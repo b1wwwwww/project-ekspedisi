@@ -17,35 +17,66 @@
     </div>
 
     {{-- Navigasi --}}
-    <nav class="flex-1 space-y-7 overflow-y-auto">
+    <nav class="flex-1 space-y-6 overflow-y-auto">
 
         {{-- Dashboard --}}
-        <div class="space-y-1">
+        <div>
+            <p class="mb-2 px-3 text-xs font-bold uppercase tracking-wider text-blue-300">
+                Utama
+            </p>
+
             <a href="{{ route('manajer.dashboard') }}"
-               class="block rounded-lg px-3 py-2.5 text-sm font-medium transition hover:bg-[#1D70A2]">
+                class="block rounded-lg px-3 py-2.5 text-sm font-medium transition hover:bg-[#1D70A2]">
                 Dashboard
             </a>
         </div>
 
         {{-- Manajemen --}}
-        <div class="space-y-1">
-            <a href="{{ route('tarif.index') }}"
-                class="block rounded-lg px-3 py-2.5 text-sm font-medium transition hover:bg-[#1D70A2]">
-                Manajemen Tarif & Zona
-            </a>
+        <div>
+            <p class="mb-2 px-3 text-xs font-bold uppercase tracking-wider text-blue-300">
+                Manajemen
+            </p>
+
+            <div class="space-y-1">
+                <a href="{{ route('tarif.index') }}"
+                    class="block rounded-lg px-3 py-2.5 text-sm font-medium transition hover:bg-[#1D70A2]">
+                    Manajemen Tarif & Zona
+                </a>
+
+                <a href="{{ route('pelanggan.index') }}"
+                    class="block rounded-lg px-3 py-2.5 text-sm font-medium transition hover:bg-[#1D70A2]">
+                    Data Pelanggan
+                </a>
+
+                <a href="{{ route('admin.kurir.index') }}"
+                    class="block rounded-lg px-3 py-2.5 text-sm font-medium transition hover:bg-[#1D70A2]">
+                    Data Kurir
+                </a>
+            </div>
         </div>
 
-        {{-- Data Master --}}
-        <div class="space-y-1">
-            <a href="{{ route('pelanggan.index') }}"
-                class="block rounded-lg px-3 py-2.5 text-sm font-medium transition hover:bg-[#1D70A2]">
-                Data Pelanggan
-            </a>
+        {{-- Laporan --}}
+        <div>
+            <p class="mb-2 px-3 text-xs font-bold uppercase tracking-wider text-blue-300">
+                Laporan
+            </p>
 
-            <a href="{{ route('admin.kurir.index') }}"
-                class="block rounded-lg px-3 py-2.5 text-sm font-medium transition hover:bg-[#1D70A2]">
-                Data Kurir
-            </a>
+            <div class="space-y-1">
+                <a href="{{ route('manajer.laporan.pengiriman') }}"
+                    class="block rounded-lg px-3 py-2.5 text-sm font-medium transition hover:bg-[#1D70A2]">
+                    Laporan Pengiriman
+                </a>
+
+                <a href="{{ route('manajer.laporan.pendapatan-zona') }}"
+                    class="block rounded-lg px-3 py-2.5 text-sm font-medium transition hover:bg-[#1D70A2]">
+                    Pendapatan per Zona
+                </a>
+
+                <a href="{{ route('manajer.laporan.rekap-cod') }}"
+                    class="block rounded-lg px-3 py-2.5 text-sm font-medium transition hover:bg-[#1D70A2]">
+                    Rekap COD per Kurir
+                </a>
+            </div>
         </div>
 
     </nav>
@@ -62,7 +93,7 @@
             @csrf
 
             <button type="submit"
-                    class="w-full rounded-lg px-3 py-2.5 text-left text-sm font-medium text-red-200 transition hover:bg-red-500/20">
+                class="w-full rounded-lg px-3 py-2.5 text-left text-sm font-medium text-red-200 transition hover:bg-red-500/20">
                 Keluar
             </button>
         </form>
