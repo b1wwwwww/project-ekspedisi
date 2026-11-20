@@ -111,12 +111,7 @@ class PenugasanKurirController extends Controller
                     ]);
                 }
 
-                // Kurir sebelumnya tidak boleh menerima paket yang sama.
-                if ($siapDitugaskanUlang && $item->kurir_id == $kurir->id) {
-                    throw ValidationException::withMessages([
-                        'kurir_id' => "Kurir sebelumnya tidak boleh menerima kembali paket {$item->no_resi}.",
-                    ]);
-                }
+            
             }
 
             // Menghitung kapasitas kurir yang sedang digunakan.
