@@ -11,13 +11,12 @@ use App\Http\Controllers\Kurir\PenugasanController;
 use App\Http\Controllers\Manajer\DashboardController as ManajerDashboardController;
 use App\Http\Controllers\Manajer\LaporanController; // Alias untuk menghindari konflik nama dengan DashboardController Admin
 use App\Http\Controllers\Manajer\TarifController;
+use App\Http\Controllers\PelacakanResiController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
-    return view('welcome');
-});
+Route::get('/', [PelacakanResiController::class, 'index'])->name('pelacakan-resi.index');
 
 Route::get('/dashboard', function (Request $request) {
     $role = $request->user()->role;
