@@ -28,7 +28,7 @@ import { Api } from '../../services/api';
   ],
 })
 export class LoginPage {
-  // Inject Angular and Ionic services so the page stays standalone.
+  // Mengambil service API, router, loading, dan toast sebagai dependensi halaman standalone.
   private readonly api = inject(Api);
   private readonly router = inject(Router);
   private readonly loadingController = inject(LoadingController);
@@ -48,7 +48,7 @@ export class LoginPage {
   async login(): Promise<void> {
     const kodeKurir = this.kodeKurir.trim();
 
-    // Prevent empty requests and give immediate feedback to the courier.
+    // Mencegah permintaan kosong dan memberikan umpan balik langsung kepada kurir.
     if (!kodeKurir || !this.password) {
       await this.showToast('Kode kurir dan password wajib diisi.', 'warning');
       return;
@@ -61,9 +61,10 @@ export class LoginPage {
     });
     await loading.present();
 
+    // Validasi sederhana di sisi aplikasi sebelum meminta token login ke server.
     this.api.login(kodeKurir, this.password).subscribe({
       next: async (response) => {
-        // The interceptor uses this token for every authenticated API request.
+        // Token disimpan lokal agar interceptor dapat melampirkannya pada request berikutnya.
         this.api.setToken(response.token);
         await loading.dismiss();
         await this.showToast(`Selamat datang, ${response.kurir.nama}`, 'success');

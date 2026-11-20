@@ -33,7 +33,7 @@ import { Api, Paket } from '../../services/api';
   ],
 })
 export class DaftarTugasPage {
-  // Load only packages assigned to the authenticated courier through the API service.
+  // API hanya mengembalikan paket Dikirim milik akun kurir yang sedang login.
   private readonly api = inject(Api);
   private readonly router = inject(Router);
   private readonly toastController = inject(ToastController);
@@ -81,7 +81,7 @@ export class DaftarTugasPage {
   }
 
   logout(): void {
-    // Request server-side token deletion, then always clear local login state.
+    // Token server dihapus melalui API, lalu token lokal selalu dibersihkan saat logout.
     this.api.logout().subscribe({
       next: async (response) => {
         this.api.clearToken();

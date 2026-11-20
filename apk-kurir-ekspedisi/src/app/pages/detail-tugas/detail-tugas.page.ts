@@ -38,7 +38,7 @@ import { Api, PaketDetail } from '../../services/api';
   ],
 })
 export class DetailTugasPage {
-  // Resolve the package ID from the route and use server authorization for ownership checks.
+  // ID paket dibaca dari routing, sedangkan hak akses kepemilikan tetap diperiksa server.
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly api = inject(Api);
@@ -87,6 +87,7 @@ export class DetailTugasPage {
     }
 
     if (status === 'Gagal Kirim' && !this.catatan.trim()) {
+      // Catatan kegagalan wajib ada agar aturan pengiriman gagal dapat dicatat dengan jelas.
       await this.showToast('Catatan kegagalan wajib diisi.', 'warning');
       return;
     }

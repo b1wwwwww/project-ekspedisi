@@ -37,7 +37,7 @@ import { Api, CodBelumDisetor } from '../../services/api';
   ],
 })
 export class RekapCodPage implements OnInit {
-  // Use the authenticated API endpoint to calculate COD values only for this courier.
+  // Rekap COD dihitung oleh API hanya untuk paket milik kurir yang sedang login.
   private readonly api = inject(Api);
   private readonly router = inject(Router);
   private readonly toastController = inject(ToastController);

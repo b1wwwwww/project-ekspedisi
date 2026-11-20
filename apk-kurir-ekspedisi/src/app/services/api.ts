@@ -43,7 +43,7 @@ export class Api {
     private http = inject(HttpClient);
     private baseUrl = environment.apiUrl;
 
-  // --- Token ---
+    // Token disimpan lokal dan dilampirkan otomatis oleh interceptor pada request terproteksi.
     getToken(): string | null {
         return localStorage.getItem(TOKEN_KEY);
     }
@@ -58,6 +58,7 @@ export class Api {
     }
 
     // --- Auth ---
+    // Endpoint autentikasi mengirim data login dan menghapus token saat logout.
     login(kode_kurir: string, password: string): Observable<LoginResponse> {
         return this.http.post<LoginResponse>(`${this.baseUrl}/login`, { kode_kurir, password });
     }

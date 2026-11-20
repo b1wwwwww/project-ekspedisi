@@ -34,7 +34,7 @@ import { Api } from '../../services/api';
   ],
 })
 export class GantiPasswordPage {
-  // Keep the page standalone and connect it to the existing authenticated API service.
+  // Dependensi halaman disiapkan melalui injection agar komponen tetap standalone.
   private readonly api = inject(Api);
   private readonly router = inject(Router);
   private readonly loadingController = inject(LoadingController);
@@ -46,12 +46,13 @@ export class GantiPasswordPage {
   isSubmitting = false;
 
   async gantiPassword(): Promise<void> {
-    // Validate locally before sending the password-change request.
+    // Validasi lokal sebelum mengirim permintaan penggantian password.
     if (!this.passwordLama || !this.passwordBaru || !this.passwordKonfirmasi) {
       await this.showToast('Semua kolom password wajib diisi.', 'warning');
       return;
     }
 
+    // Pemeriksaan panjang dan kesamaan password dilakukan sebelum mengirim ke API.
     if (this.passwordBaru.length < 8) {
       await this.showToast('Password baru minimal 8 karakter.', 'warning');
       return;
