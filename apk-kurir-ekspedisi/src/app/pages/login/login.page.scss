@@ -1,0 +1,145 @@
+:host {
+  --login-primary: #0a3656;
+  --login-text: #1e293b;
+  --login-muted: #64748b;
+}
+
+.login-content {
+  --background: #eef2f7;
+}
+
+.login-shell {
+  min-height: 100%;
+  width: min(88%, 420px);
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 32px 0 20px;
+}
+
+.brand-section {
+  margin-bottom: 24px;
+  text-align: center;
+}
+
+.brand-mark {
+  width: 56px;
+  height: 56px;
+  margin: 0 auto 12px;
+  display: grid;
+  place-items: center;
+  border-radius: 12px;
+  background: var(--login-primary);
+  color: #ffffff;
+  font-size: 22px;
+  font-weight: 700;
+}
+
+.brand-section h1 {
+  margin: 0;
+  color: var(--login-text);
+  font-size: 22px;
+  line-height: 1.2;
+}
+
+.brand-section p {
+  margin: 6px 0 0;
+  color: var(--login-muted);
+  font-size: 13px;
+}
+
+.login-card {
+  padding: 24px;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  background: #ffffff;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+}
+
+.field-group {
+  margin-bottom: 18px;
+}
+
+.field-group label {
+  display: block;
+  margin: 0 0 8px 2px;
+  color: #334155;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.field-group ion-input {
+  --padding-start: 14px;
+  --padding-end: 14px;
+  --background: #ffffff;
+  --border-radius: 8px;
+  --border-color: #cbd5e1;
+  --border-width: 1px;
+  --highlight-color-focused: var(--login-primary);
+  min-height: 48px;
+  font-size: 14px;
+  --color: #1e293b;
+  --placeholder-color: #94a3b8;
+  --placeholder-opacity: 1;
+  --highlight-color: var(--login-primary);
+  --highlight-color-focused: var(--login-primary);
+  --highlight-height: 1px;
+}
+
+.field-group ion-input::part(native) {
+  color: #1e293b;
+  caret-color: var(--login-primary);
+}
+
+.password-shell {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.password-shell ion-input {
+  --padding-end: 88px;
+  width: 100%;
+}
+
+.password-toggle {
+  position: absolute;
+  z-index: 3;
+  right: 10px;
+  border: 0;
+  background: transparent;
+  color: var(--login-primary);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.login-button {
+  --background: var(--login-primary);
+  --background-hover: #082d49;
+  --background-activated: #082d49;
+  --border-radius: 8px;
+  --box-shadow: none;
+  height: 48px;
+  margin-top: 6px;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.footer-text {
+  margin: 24px 0 0;
+  text-align: center;
+  color: #94a3b8;
+  font-size: 11px;
+}
+
+@media (max-height: 620px) {
+  .login-shell {
+    justify-content: flex-start;
+  }
+
+  .brand-section {
+    margin-bottom: 16px;
+  }
+}
