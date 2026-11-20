@@ -1,13 +1,60 @@
 <ion-header [translucent]="true">
   <ion-toolbar>
-    <ion-title>rekap-cod</ion-title>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/daftar-tugas"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Rekap COD</ion-title>
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">rekap-cod</ion-title>
-    </ion-toolbar>
-  </ion-header>
+<ion-content [fullscreen]="true" class="cod-content">
+  <ion-refresher slot="fixed" (ionRefresh)="loadRekap($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
+
+  <main class="cod-shell">
+    @if (isLoading) {
+      <div class="state-box">
+        <ion-spinner name="crescent"></ion-spinner>
+        <p>Memuat rekap COD...</p>
+      </div>
+    } @else if (errorMessage) {
+      <div class="state-box">
+        <h2>Gagal memuat COD</h2>
+        <p>{{ errorMessage }}</p>
+        <ion-button (click)="loadRekap()">Coba Lagi</ion-button>
+      </div>
+    } @else if (rekap) {
+      <section class="summary-grid">
+        <div class="summary-card">
+          <span>Belum Disetor</span>
+          <strong>Rp{{ rekap.total_belum_disetor | number:'1.0-0' }}</strong>
+        </div>
+        <div class="summary-card">
+          <span>Jumlah Paket</span>
+          <strong>{{ rekap.jumlah_paket }}</strong>
+        </div>
+      </section>
+
+      @if (rekap.data.length === 0) {
+        <div class="state-box">
+          <h2>Tidak ada COD</h2>
+          <p>Semua COD sudah dicatat atau belum ada paket COD terkirim.</p>
+        </div>
+      } @else {
+        <section class="cod-list">
+          @for (paket of rekap.data; track paket.id) {
+            <article class="cod-card">
+              <div>
+                <strong>{{ paket.no_resi }}</strong>
+                <h2>{{ paket.penerima_nama }}</h2>
+                <p>{{ paket.kota_tujuan }}</p>
+              </div>
+              <b>Rp{{ paket.nilai_cod | number:'1.0-0' }}</b>
+            </article>
+          }
+        </section>
+      }
+    }
+  </main>
 </ion-content>

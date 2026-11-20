@@ -1,0 +1,100 @@
+ion-toolbar {
+  --background: #ffffff;
+  --color: #1e293b;
+  --border-color: #e2e8f0;
+}
+
+.cod-content {
+  --background: #eef2f7;
+}
+
+.cod-shell {
+  width: min(92%, 520px);
+  margin: 0 auto;
+  padding: 16px 0 28px;
+}
+
+.summary-grid {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.summary-card {
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  background: #ffffff;
+  padding: 14px;
+}
+
+.summary-card span {
+  display: block;
+  margin-bottom: 6px;
+  color: #64748b;
+  font-size: 11px;
+}
+
+.summary-card strong {
+  color: #0a3656;
+  font-size: 17px;
+}
+
+.cod-list {
+  display: grid;
+  gap: 8px;
+}
+
+.cod-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  background: #ffffff;
+  padding: 14px;
+}
+
+.cod-card strong {
+  color: #0a3656;
+  font-size: 11px;
+}
+
+.cod-card h2 {
+  margin: 4px 0 2px;
+  color: #1e293b;
+  font-size: 14px;
+}
+
+.cod-card p {
+  margin: 0;
+  color: #64748b;
+  font-size: 11px;
+}
+
+.cod-card b {
+  flex-shrink: 0;
+  color: #166534;
+  font-size: 13px;
+}
+
+.state-box {
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  background: #ffffff;
+  padding: 28px 16px;
+  text-align: center;
+  color: #64748b;
+}
+
+.state-box h2 {
+  margin: 0 0 6px;
+  color: #1e293b;
+  font-size: 16px;
+}
+
+.state-box p {
+  margin: 8px 0 16px;
+  font-size: 13px;
+}
