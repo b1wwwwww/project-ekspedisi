@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Kurir;
+use App\Models\Paket;
 use App\Models\User;
 use App\Rules\NomorTeleponValid;
 use App\Services\TeleponNormalizer;
@@ -137,6 +138,19 @@ class KurirController extends Controller
     // Mengaktifkan atau menonaktifkan akun Kurir tanpa menghapus data.
     public function toggleStatus(Kurir $kurir): RedirectResponse
     {
+        // Hanya dicek saat MENONAKTIFKAN; mengaktifkan kembali tidak perlu validasi ini
+        if ($kurir->aktif){
+            $paketDikirim = Paket::where('kurir_id', $kurir->id)
+            ->where('status', 'Dikirim')
+            ->count();
+
+        if ($paketDikirim > 0){
+            return back()->withErrors([
+                'kurir' => "Kurir {$kurir->kode_kurir} masih membawa {$paketDikirim} paket berstatus Dikirim dan tidak dapat di nonaktifkan.",
+            ]);
+        }
+    }
+
         $kurir->update(['aktif' => ! $kurir->aktif]);
 
         $status = $kurir->aktif ? 'diaktifkan' : 'dinonaktifkan';
