@@ -1,0 +1,131 @@
+ion-toolbar {
+  --background: #ffffff;
+  --color: #1e293b;
+  --border-color: #e2e8f0;
+}
+
+.task-content {
+  --background: #eef2f7;
+}
+
+.task-shell {
+  width: min(92%, 520px);
+  margin: 0 auto;
+  padding: 16px 0 28px;
+}
+
+.quick-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.quick-actions ion-button {
+  --border-color: #cbd5e1;
+  --border-radius: 8px;
+  --color: #0a3656;
+  height: 42px;
+  margin: 0;
+  font-size: 12px;
+}
+
+.logout-button {
+  grid-column: 1 / -1;
+  --border-color: #dc2626;
+  --color: #dc2626;
+}
+
+.task-list {
+  display: grid;
+  gap: 10px;
+}
+
+.task-card {
+  width: 100%;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  background: #ffffff;
+  padding: 14px;
+  text-align: left;
+  color: #1e293b;
+  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.05);
+}
+
+.task-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.task-card-header strong {
+  color: #0a3656;
+  font-size: 13px;
+}
+
+.task-card-header span {
+  border-radius: 999px;
+  background: #dbeafe;
+  color: #1d4ed8;
+  padding: 4px 8px;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.task-card h2 {
+  margin: 0 0 4px;
+  font-size: 16px;
+}
+
+.address {
+  margin: 0;
+  color: #64748b;
+  font-size: 12px;
+}
+
+.task-meta {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+  color: #475569;
+  font-size: 11px;
+}
+
+.task-meta span {
+  border-radius: 6px;
+  background: #f1f5f9;
+  padding: 5px 7px;
+}
+
+.cod-tag {
+  margin-top: 10px;
+  color: #166534;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.state-box {
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  background: #ffffff;
+  padding: 28px 16px;
+  text-align: center;
+  color: #64748b;
+}
+
+.state-box h2 {
+  margin: 0 0 6px;
+  color: #1e293b;
+  font-size: 16px;
+}
+
+.state-box p {
+  margin: 8px 0 16px;
+  font-size: 13px;
+}
+
+.state-box ion-spinner {
+  color: #0a3656;
+}
