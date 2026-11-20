@@ -3,6 +3,8 @@
 namespace App\Services\Import;
 
 use App\Models\Kurir;
+use App\Models\DetailSetoranCod;
+use App\Models\SetoranCod;
 use App\Models\Paket;
 use App\Models\Pelanggan;
 use App\Models\RiwayatPaket;
@@ -149,6 +151,22 @@ class PaketHistorisImporter
                         'status' => $status,
                     ]
                 );
+
+                // Paket historis berstatus Terkirim dianggap sudah disetor sejak awal.
+                if ($status === 'Terkirim' && $nilaiCod > 0 && ! DetailSetoranCod::where('paket_id', $paket->id)->exists()) {
+                    $setoran = SetoranCod::create([
+                        'kurir_id' => $kurir->id,
+                        'dicatat_oleh' => $penggunaId,
+                        'tanggal_setoran' => Carbon::parse($tanggalTerima),
+                        'total_setoran' => $nilaiCod,
+                        'catatan' => 'Setoran historis, dianggap lunas otomatis saat impor data awal.',
+                    ]);
+
+                    $setoran->detail()->create([
+                        'paket_id' => $paket->id,
+                        'jumlah_cod' => $nilaiCod,
+                    ]);
+                }
             });
 
             $berhasil++;
