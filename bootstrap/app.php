@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\ApiWajibGantiPassword;
 use App\Http\Middleware\RoleMiddleware;
 use App\Http\Middleware\WajibGantiPassword;
 use Illuminate\Foundation\Application;
@@ -19,6 +20,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'wajib.ganti.password' => WajibGantiPassword::class,
             'role' => RoleMiddleware::class,
+            'api.wajib.ganti.password' => ApiWajibGantiPassword::class,
         ]);
 
         $middleware->redirectUsersTo(function (Request $request): string {
