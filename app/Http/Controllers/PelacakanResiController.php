@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Paket;
+use App\Models\ZonaTarif;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
@@ -14,7 +15,6 @@ class PelacakanResiController extends Controller
             'resi' => ['nullable', 'string', 'max:255'],
         ]);
 
-        
         $paket = null;
         $teleponSamar = null;
         $resi = strtoupper(trim((string) $request->query('resi', '')));
@@ -23,17 +23,19 @@ class PelacakanResiController extends Controller
             $paket = Paket::query()
                 ->where('no_resi', $resi)
                 ->with(['riwayat' => function ($query) {
-                        $query->latest('created_at');
-                    },
-                ])
+                    $query->latest('created_at')->with('pengguna');
+                }])
                 ->first();
 
-        if($paket){
-            // menyamarkan nomor telepon: 3 tigit pertama dan akhir tampil, sisanya di hide
-            $teleponSamar = substr($paket->penerima_telepon, 0, 7) . str_repeat('*', max(0, strlen($paket->penerima_telepon) - 7));
+            if ($paket) {
+                // Menyamarkan nomor telepon: 7 digit pertama tampil, sisanya disamarkan
+                $telepon = $paket->penerima_telepon ?? '';
+                $teleponSamar = substr($telepon, 0, 7).str_repeat('*', max(0, strlen($telepon) - 7));
             }
         }
 
-        return view('welcome', compact('paket', 'resi', 'teleponSamar'));
+        $zonaTarif = rescue(fn () => ZonaTarif::orderBy('kode_zona')->get(), collect());
+
+        return view('welcome', compact('paket', 'resi', 'teleponSamar', 'zonaTarif'));
     }
 }
