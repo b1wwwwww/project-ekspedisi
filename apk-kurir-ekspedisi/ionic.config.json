@@ -1,0 +1,7 @@
+{
+  "name": "apk-kurir-ekspedisi",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular-standalone"
+}
