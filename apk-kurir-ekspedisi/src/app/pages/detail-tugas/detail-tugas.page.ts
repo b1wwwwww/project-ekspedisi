@@ -15,6 +15,8 @@ import {
   IonToolbar,
   LoadingController,
   ToastController,
+  IonRefresher,
+  IonRefresherContent,
 } from '@ionic/angular';
 import { timeout, TimeoutError } from 'rxjs';
 
@@ -35,6 +37,8 @@ import type { PaketDetail } from '../../services/api';
     IonButtons,
     IonTextarea,
     IonSpinner,
+    IonRefresher,
+    IonRefresherContent,
     CommonModule,
     FormsModule,
   ],
@@ -65,22 +69,30 @@ export class DetailTugasPage {
     this.loadDetail(packageId);
   }
 
-  loadDetail(packageId: string): void {
-    this.api.getPaketDetail(packageId).pipe(timeout(15000)).subscribe({
+  loadDetail(packageId: string, event?: CustomEvent): void {
+    this.api.getPaketDetail(packageId).pipe(timeout(8000)).subscribe({
       next: (response) => {
         this.paket = response.data;
         this.isLoading = false;
+        this.completeRefresher(event);
       },
       error: async (error: HttpErrorResponse | TimeoutError) => {
         this.isLoading = false;
         this.errorMessage = error instanceof TimeoutError
-          ? 'Server tidak merespons dalam 15 detik. Periksa koneksi jaringan.'
-          : error.status === 403
-            ? 'Paket ini bukan milik akun kurir Anda.'
-            : error.status === 404
-              ? 'Paket tidak ditemukan.'
-              : 'Detail paket gagal dimuat.';
+          ? 'Server tidak merespons dalam 8 detik. Tekan Coba Lagi atau periksa jaringan.'
+          : error.status === 0
+            ? 'Tidak dapat terhubung ke server. Pastikan server aktif dan IP API benar.'
+            : error.status === 423
+              ? 'Silakan ganti password terlebih dahulu.'
+              : error.status === 401
+                ? 'Sesi login berakhir. Silakan login kembali.'
+                : error.status === 403
+                  ? 'Paket ini bukan milik akun kurir Anda.'
+                  : error.status === 404
+                    ? 'Paket tidak ditemukan.'
+                    : 'Detail paket gagal dimuat.';
         await this.showToast(this.errorMessage, 'danger');
+        this.completeRefresher(event);
       },
     });
   }
@@ -133,6 +145,18 @@ export class DetailTugasPage {
     void this.router.navigateByUrl('/daftar-tugas');
   }
 
+  muatUlang(event?: CustomEvent): void {
+    const packageId = this.route.snapshot.paramMap.get('id');
+    if (!packageId) {
+      this.errorMessage = 'ID paket tidak ditemukan.';
+      return;
+    }
+
+    this.isLoading = event ? false : true;
+    this.errorMessage = '';
+    this.loadDetail(packageId, event);
+  }
+
   private async showToast(message: string, color: 'success' | 'warning' | 'danger'): Promise<void> {
     const toast = await this.toastController.create({
       message,
@@ -141,5 +165,12 @@ export class DetailTugasPage {
       color,
     });
     await toast.present();
+  }
+
+  private completeRefresher(event?: CustomEvent): void {
+    if (event) {
+      const refresher = event.target as HTMLIonRefresherElement;
+      refresher.complete();
+    }
   }
 }

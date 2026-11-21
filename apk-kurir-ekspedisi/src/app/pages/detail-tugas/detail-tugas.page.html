@@ -8,6 +8,10 @@
 </ion-header>
 
 <ion-content [fullscreen]="true" class="detail-content">
+  <ion-refresher slot="fixed" (ionRefresh)="muatUlang($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
+
   <main class="detail-shell">
     @if (isLoading) {
     <div class="state-box">
@@ -18,7 +22,8 @@
     <div class="state-box">
       <h2>Detail tidak tersedia</h2>
       <p>{{ errorMessage }}</p>
-      <ion-button (click)="kembali()">Kembali</ion-button>
+      <ion-button (click)="muatUlang()">Coba Lagi</ion-button>
+      <ion-button fill="outline" (click)="kembali()">Kembali</ion-button>
     </div>
     } @else if (paket) {
     <section class="detail-card">
