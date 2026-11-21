@@ -83,17 +83,19 @@ export class LoginPage {
         await loading.dismiss();
         this.isSubmitting = false;
 
-        const validationMessage = error instanceof TimeoutError
+        const displayMessage = error instanceof TimeoutError
           ? 'Server tidak merespons. Periksa koneksi jaringan dan alamat API.'
-          : error.error?.message;
+          : error.status === 0
+            ? 'Tidak dapat terhubung ke server. Pastikan server Laravel aktif dan IP API benar.'
+            : error.error?.message;
         const fieldMessage = error instanceof TimeoutError
           ? null
           : error.error?.errors?.kode_kurir?.[0]
             ?? error.error?.errors?.password?.[0];
 
-        this.errorMessage = validationMessage || fieldMessage || 'Login gagal. Periksa koneksi jaringan.';
+        this.errorMessage = displayMessage || fieldMessage || 'Login gagal. Periksa koneksi jaringan.';
         await this.showToast(
-          validationMessage || fieldMessage || 'Login gagal. Periksa koneksi jaringan.',
+          displayMessage || fieldMessage || 'Login gagal. Periksa koneksi jaringan.',
           'danger',
         );
       },
