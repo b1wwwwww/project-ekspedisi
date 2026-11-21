@@ -128,6 +128,17 @@ dd {
   --border-width: 1px;
   --padding-start: 12px;
   --highlight-color-focused: #0a3656;
+  --color: #1e293b;
+  --placeholder-color: #94a3b8;
+  --placeholder-opacity: 1;
+  --highlight-color: #0a3656;
+  --highlight-color-focused: #0a3656;
+  --highlight-height: 1px;
+}
+
+.action-card ion-textarea::part(native) {
+  color: #1e293b;
+  caret-color: #0a3656;
 }
 
 .delivered-button {
@@ -135,6 +146,7 @@ dd {
   --background-hover: #082d49;
   --border-radius: 8px;
   --box-shadow: none;
+  --color: #ffffff;
   font-weight: 700;
 }
 
