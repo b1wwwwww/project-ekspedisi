@@ -1,58 +1,212 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Priangan Kilat Express — Sistem Ekspedisi
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+## 1. Ringkasan
+Priangan Kilat Express (PKE)
 
-## About Laravel
+Sistem Website + Apk ini digunakan oleh Admin Loket, Kurir Lapangan, dan Manajer Eksekutif, dengan akses web tanpa login bagi pelanggan untuk pelacakan paket. Aplikasi ini memecahkan kendala klien terkait ketidakakuratan perhitungan tarif, penugasan kurir yang sering kelebihan beban (overload), risiko setoran COD ganda, serta lambatnya pemantauan status paket. Alur kerja yang diterapkan dimulai dari penginputan data paket dan penerbitan resi otomatis di loket, verifikasi transit, penugasan paket ke kurir aktif dengan batas maksimal 20 paket, penugasan pengantaran kepada kurir dengan aturan maksimal jika paket dua kali gagal kirim maka status nya wajib menjadi retur, fitur setoran COD sekali catat, hingga rekap laporan pendapatan dan pengiriman untuk mempermudah pengambilan keputusan dan monitoring data oleh manager.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## 2. Teknologi
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+**Server & Web (Admin, Manajer, Cek Resi Publik):**
+- Laravel 13 (PHP 8.5)
+- Blade + Tailwind CSS
+- MySQL
+- Laravel Sanctum (autentikasi token untuk REST API)
+- Integrasi eksternal: Pusat Wilayah API (lewat `App\Services\PusatWilayahService`)
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+**APK (Kurir):**
+- Ionic + Capacitor + Angular (TypeScript)
+- Mengonsumsi REST API lewat token Sanctum
 
-## Learning Laravel
+**Alasan pemilihan stack:**
+Laravel dipilih karena ini framework yang paling saya kuasai dan di dalami dari pembelajaran
+di sekolah, sehingga saya bisa fokus menyelesaikan logika bisnis yang rumit
+(validasi status berjenjang, perhitungan ongkir, COD) daripada belajar
+framework baru di waktu ujian yang terbatas. Fitur bawaannya seperti migration,
+Eloquent ORM, dan validasi request juga langsung cocok dengan kebutuhan soal
+(database relasional dengan banyak relasi antar tabel). MySQL dipakai sebagai
+database relasional sesuai syarat wajib soal, dan familiar untuk dikembangkan
+maupun diperiksa strukturnya.
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+Untuk APK, saya memilih Ionic + Capacitor karena bisa memakai kembali
+kemampuan HTML/CSS/JavaScript yang sudah saya kuasai dari sisi web, tanpa
+harus mempelajari bahasa native Android (Kotlin/Java) dari nol dalam waktu
+pengerjaan yang terbatas. Capacitor tetap menghasilkan aplikasi native yang
+mengambil data lewat REST API (bukan WebView yang membuka halaman web),
+sehingga tetap sesuai dengan syarat soal.
 
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+## 3. Cara menjalankan server
+1. `composer install`
+2. `cp .env.example .env` lalu `php artisan key:generate`
+3. Buat database MySQL, misalnya `priangan_kilat`, lalu isi `DB_DATABASE`, `DB_USERNAME`, `DB_PASSWORD`, `DB_HOST`, dan `DB_PORT` di `.env`
+4. Isi `.env`: `PUSAT_WILAYAH_URL` dan `PUSAT_WILAYAH_API_KEY` sesuai layanan Pusat Wilayah yang tersedia
+5. `php artisan migrate`
+6. `php artisan db:seed` (membuat akun Admin, Manajer, dan tarif zona awal)
+7. `npm install && npm run build`
+8. `php artisan serve --host=0.0.0.0 --port=8000`
+9. Login sebagai Admin → buka menu **Import Data Awal** → upload `pelanggan.csv`, `kurir.csv`, `paket_historis.csv` dari folder `UKK_RPL_2026-2027_CSV_Siswa/Varian_B_Ekspedisi/Data_Awal/`
+10. Jalankan seeder demo: `php artisan db:seed --class=DemoSeeder`
 
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
+## 4. Cara memasang APK
 
-## Agentic Development
+### Berkas APK
 
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+Berkas APK debug yang sudah dapat dipasang tersedia di:
 
-```bash
-composer require laravel/boost --dev
-
-php artisan boost:install
+```text
+apk/apk-kurir-ekspedisi-debug.apk
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+Berkas ini disalin dari hasil build Ionic/Capacitor:
 
-## Contributing
+```bash
+mkdir -p apk
+cp apk-kurir-ekspedisi/android/app/build/outputs/apk/debug/app-debug.apk apk/apk-kurir-ekspedisi-debug.apk
+```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+APK mendukung Android API 26 atau Android 8.0 ke atas.
 
-## Code of Conduct
+### Memasang lewat USB dan ADB
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+1. Aktifkan **Opsi Developer** dan **USB Debugging** pada HP.
+2. Sambungkan HP ke PC melalui kabel USB.
+3. Pastikan HP terdeteksi:
 
-## Security Vulnerabilities
+```bash
+adb devices
+```
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+4. Pasang APK:
 
-## License
+```bash
+adb install -r apk/apk-kurir-ekspedisi-debug.apk
+```
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+Bila `adb` tidak tersedia pada PATH, gunakan jalur `platform-tools` di dalam instalasi Android SDK pada perangkat masing-masing, contoh:
+
+```bash
+<lokasi-android-sdk>/platform-tools/adb install -r apk/apk-kurir-ekspedisi-debug.apk
+```
+
+### Memasang lewat HP tanpa kabel
+
+Salin berkas APK ke penyimpanan HP lalu buka melalui File Manager. Jika Android menampilkan peringatan sumber tidak dikenal, aktifkan izin pemasangan aplikasi dari sumber file tersebut.
+
+### Menjalankan server API
+
+Server Laravel harus berjalan dan dapat dijangkau dari HP:
+
+```bash
+cd project-ekspedisi
+php artisan serve --host=0.0.0.0 --port=8000
+```
+
+PC dan HP harus berada pada jaringan Wi-Fi yang sama.
+
+Alamat API yang dikonfigurasi saat ini adalah:
+
+```text
+http://192.168.1.10:8000/api
+```
+
+Konfigurasi tersebut terletak di:
+
+```text
+apk-kurir-ekspedisi/src/environments/environment.prod.ts
+```
+
+**⚠️ Penting untuk hari wawancara:** IP di atas adalah IP LAN laptop penulis saat pengerjaan. Jaringan Wi-Fi di sekolah pada hari wawancara pasti berbeda, sehingga IP ini harus dicek ulang dan APK di-build ulang sebelum demo:
+
+1. Cek IP LAN laptop saat itu: `ip a` (Linux) atau `ipconfig` (Windows)
+2. Ubah nilai `apiUrl` di `apk-kurir-ekspedisi/src/environments/environment.prod.ts` sesuai IP yang baru
+3. Build ulang:
+```bash
+cd apk-kurir-ekspedisi
+npm run build
+npx cap sync android
+cd android
+./gradlew assembleDebug
+```
+   (bila `gradlew` tidak otomatis menemukan JDK, atur `JAVA_HOME` ke lokasi instalasi JDK pada perangkat masing-masing sebelum menjalankan perintah di atas)
+4. Pasang ulang APK hasil build terbaru ke HP sebelum sesi dimulai
+
+Untuk Android emulator, gunakan alamat host khusus emulator:
+
+```text
+http://10.0.2.2:8000/api
+```
+
+Pastikan `android:usesCleartextTraffic="true"` tetap aktif pada manifest Android karena server uji memakai HTTP LAN.
+
+## 5. Akun uji
+| Peran | Identitas login | Password |
+|---|---|---|
+| Admin | admin@test.com | password |
+| Manajer | manager@test.com | password |
+| Kurir (contoh KUR-03) | Kode Kurir: KUR-03 | password123 (wajib ganti saat login pertama) |
+
+## 6. Letak berkas
+- Migrasi: `database/migrations/`
+- Seeder akun & tarif awal: `database/seeders/AdminSeeder.php`, `ManagerSeeder.php`, `ZonaTarifSeeder.php` (otomatis jalan lewat `php artisan db:seed`)
+- Impor data awal CSV: lewat UI Admin (`/admin/import`), logikanya di `app/Services/Import/`
+- Seeder data demo: `database/seeders/DemoSeeder.php`, dijalankan manual dengan `php artisan db:seed --class=DemoSeeder` **setelah** impor CSV data awal
+- REST API Kurir: `routes/api.php`, controller di `app/Http/Controllers/Api/Kurir/`
+- Project APK Kurir: folder `apk-kurir-ekspedisi/` (Ionic + Capacitor + Angular)
+
+## 7. Keputusan Anda
+- Format normalisasi nomor telepon (lihat `app/Services/TeleponNormalizer.php`)
+- Penanganan baris CSV yang tidak bisa diproses (dilewati + dilaporkan, lihat `app/Services/Import/`)
+- Penyamaran nomor telepon di cek resi (7 digit pertama + sisanya disamarkan)
+- Pelanggan generik untuk paket demo (tidak ada data pengirim di `seed_paket_dikirim.csv`)
+- **Zona tidak dikenali saat impor CSV paket historis:** jika Pusat Wilayah tidak mengenali kota tujuan saat proses impor `paket_historis.csv`, baris tersebut dilewati dan dicatat di ringkasan hasil impor (bukan diisi zona manual otomatis). Ini berbeda dari alur input paket manual, yang langsung meminta Admin memilih zona manual saat itu juga — karena saat impor CSV berjalan, tidak ada Admin yang bisa diminta mengambil keputusan untuk tiap baris secara langsung. Baris yang dilewati bisa diperiksa dan diinput ulang manual oleh Admin melalui form input paket biasa, yang sudah mendukung pilihan zona manual.
+
+## 8. Lembar self-check
+
+| No | Butir penerimaan | Klaim (Ya/Tidak) | Langkah uji singkat |
+|---|---|---|---|
+| 1 | Input paket, resi otomatis unik/reset harian, telepon divalidasi | Ya | Input paket baru, cek format resi PKE-YYMMDD-000x; coba input telepon tidak valid |
+| 2 | Ongkir otomatis dari zona+berat, Express +50%, ongkir lama tidak berubah saat tarif diedit | Ya | Buat paket, lalu ubah tarif zona di menu Manajer, cek ongkir paket lama tetap sama |
+| 3 | Status berjenjang, tidak boleh loncat, Terkirim/Retur final | Ya | Coba ubah status di luar urutan, pastikan ditolak |
+| 4 | Riwayat tiap perubahan status (waktu, pelaku, catatan) | Ya | Buka detail paket, cek riwayat |
+| 5 | Gagal kirim maksimal 2x, lalu wajib Retur oleh Admin | Ya | Tandai gagal kirim 2x dari APK/web kurir, cek tombol Retur muncul di Admin |
+| 6 | Penugasan ke kurir, limit 20 paket, kurir nonaktif tidak bisa ditugaskan | Ya | Tugaskan 21 paket ke 1 kurir, pastikan ditolak di paket ke-21 |
+| 7 | Cek resi publik tanpa login, telepon disamarkan | Ya | Buka `/` tanpa login, cek resi, pastikan telepon tersamar & tidak ada nama petugas |
+| 8 | Biaya COD 2% (min Rp2.000), setoran per paket tidak bisa dobel | Ya | Buat paket COD, tandai Terkirim, catat setoran, coba catat lagi paket yang sama |
+| 9 | Laporan pengiriman & pendapatan per zona (akses Manajer saja) | Ya | Buka laporan sebagai Admin (harus ditolak), lalu sebagai Manajer |
+| 10 | Impor CSV data awal (resi ganda jadi satu, berat kosong ditandai, telepon dirapikan) | Ya | Jalankan impor, cek ringkasan hasil |
+| 11 | Integrasi Pusat Wilayah + fallback zona manual saat API mati | Ya | Ubah API key jadi salah di `.env`, buat paket, pastikan masih bisa pilih zona manual |
+| 12 | Akun kurir lengkap, wajib ganti password pertama kali | Ya | Login kurir baru di APK, pastikan diarahkan ganti password |
+| 13 | Kurir ubah status Terkirim/Gagal Kirim | Ya | Login sebagai kurir di APK, update status paket |
+| 14 | Kurir lihat paket COD Terkirim yang belum disetor | Ya | Login kurir di APK, cek daftar COD belum disetor |
+
+### Fitur opsional
+
+| No | Fitur opsional | Dikerjakan (Ya/Tidak) |
+|---|---|---|
+| O1 | Berat volumetrik (p×l×t ÷ 6000, dipakai bila lebih besar dari berat aktual) | Tidak |
+| O2 | Asuransi opsional 0,5% dari nilai barang | Tidak |
+| O3 | Laporan performa kurir (persentase terkirim/gagal) | Tidak |
+| O4 | Penanda paket tertahan lebih dari 3 hari di status Transit | Tidak |
+| O5 | Reset password lewat email (server email tiruan lokal) | Tidak |
+
+## 9. Belum selesai / keterbatasan
+Seluruh 14 butir penerimaan wajib sudah berjalan dan diuji sesuai langkah di atas. Kelima fitur opsional (O1–O5) belum dikerjakan pada versi ini.
+
+## 10. Referensi dan Bantuan
+
+Dalam proses pengembangan Sistem Informasi Manajemen Ekspedisi Priangan Kilat Express, saya memanfaatkan beberapa sumber referensi dan alat bantu untuk mendukung proses pembelajaran, perancangan, implementasi, serta penyelesaian kendala teknis.
+
+**Tools AI yang digunakan:**
+
+- **Claude (Anthropic)**
+- **ChatGPT (OpenAI)**
+
+**Bentuk bantuan yang diberikan:**
+
+1. Membantu menganalisis kebutuhan sistem dan menentukan alur kerja aplikasi.
+2. Membantu merancang struktur database, relasi antartabel, dan logika bisnis ekspedisi.
+3. Membantu mengembangkan dan mengevaluasi beberapa controller Laravel.
+4. Membantu implementasi REST API untuk kebutuhan komunikasi antara backend Laravel dan aplikasi Android berbasis Ionic.
+5. Membantu memahami penggunaan middleware, autentikasi, validasi, dan pembatasan hak akses berdasarkan role pengguna.
+6. Membantu menemukan dan memperbaiki error selama proses pengembangan.
+7. Memberikan referensi serta penjelasan kode agar setiap fitur dapat dipahami dan dikembangkan kembali.
