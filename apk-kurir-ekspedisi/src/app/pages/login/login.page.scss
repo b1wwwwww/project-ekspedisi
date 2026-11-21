@@ -134,6 +134,17 @@
   font-size: 11px;
 }
 
+.error-message {
+  margin: -4px 0 12px;
+  border: 1px solid #fecaca;
+  border-radius: 8px;
+  background: #fef2f2;
+  padding: 10px 12px;
+  color: #b91c1c;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
 @media (max-height: 620px) {
   .login-shell {
     justify-content: flex-start;

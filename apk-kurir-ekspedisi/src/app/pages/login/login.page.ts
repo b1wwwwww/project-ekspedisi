@@ -11,6 +11,7 @@ import {
   LoadingController,
   ToastController,
 } from '@ionic/angular';
+import { timeout, TimeoutError } from 'rxjs';
 
 import { Api } from '../../services/api';
 
@@ -38,6 +39,7 @@ export class LoginPage {
   password = '';
   showPassword = false;
   isSubmitting = false;
+  errorMessage = '';
 
   constructor() {}
 
@@ -55,6 +57,7 @@ export class LoginPage {
     }
 
     this.isSubmitting = true;
+    this.errorMessage = '';
     const loading = await this.loadingController.create({
       message: 'Memproses login...',
       spinner: 'crescent',
@@ -62,7 +65,7 @@ export class LoginPage {
     await loading.present();
 
     // Validasi sederhana di sisi aplikasi sebelum meminta token login ke server.
-    this.api.login(kodeKurir, this.password).subscribe({
+    this.api.login(kodeKurir, this.password).pipe(timeout(15000)).subscribe({
       next: async (response) => {
         // Token disimpan lokal agar interceptor dapat melampirkannya pada request berikutnya.
         this.api.setToken(response.token);
@@ -76,14 +79,19 @@ export class LoginPage {
 
         await this.router.navigateByUrl('/daftar-tugas', { replaceUrl: true });
       },
-      error: async (error: HttpErrorResponse) => {
+      error: async (error: HttpErrorResponse | TimeoutError) => {
         await loading.dismiss();
         this.isSubmitting = false;
 
-        const validationMessage = error.error?.message;
-        const fieldMessage = error.error?.errors?.kode_kurir?.[0]
-          ?? error.error?.errors?.password?.[0];
+        const validationMessage = error instanceof TimeoutError
+          ? 'Server tidak merespons. Periksa koneksi jaringan dan alamat API.'
+          : error.error?.message;
+        const fieldMessage = error instanceof TimeoutError
+          ? null
+          : error.error?.errors?.kode_kurir?.[0]
+            ?? error.error?.errors?.password?.[0];
 
+        this.errorMessage = validationMessage || fieldMessage || 'Login gagal. Periksa koneksi jaringan.';
         await this.showToast(
           validationMessage || fieldMessage || 'Login gagal. Periksa koneksi jaringan.',
           'danger',
