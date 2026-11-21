@@ -55,7 +55,7 @@ class PelacakanResiTest extends TestCase
             ->assertSee('PKE-261109-0001')
             ->assertSee('Transit')
             ->assertSee('Paket tiba di Hub Bandung Raya.')
-            ->assertSee('Admin Operasional')
+            ->assertDontSee('Admin Operasional')
             ->assertDontSee('Jalan Rahasia Nomor 1')
             ->assertDontSee('081298765432');
     }

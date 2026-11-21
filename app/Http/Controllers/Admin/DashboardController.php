@@ -11,9 +11,15 @@ class DashboardController extends Controller
 {
     public function index()
     {
-        // Paket masuk pada hari ini.
+        // Paket masuk dihitung pada hari ini; dashboard juga menyediakan
+        // tanggal dan jumlah paket terbaru agar data demo tidak tampil nol hanya karena tanggal demo berbeda.
         $paketMasukHariIni = Paket::whereDate('tanggal_masuk', today())
             ->count();
+
+        $tanggalPaketTerakhir = Paket::max('tanggal_masuk');
+        $paketMasukTerakhir = $tanggalPaketTerakhir
+            ? Paket::whereDate('tanggal_masuk', $tanggalPaketTerakhir)->count()
+            : 0;
 
         // Menunggu penugasan Kurir
         $menungguPenugasan = Paket::where('status', 'Transit')
@@ -43,9 +49,9 @@ class DashboardController extends Controller
                         ->where('jumlah_gagal', '>=', 2);
                 });
         })
-        ->orderBy('tanggal_masuk', 'asc')
-        ->limit(5)
-        ->get();
+            ->orderBy('tanggal_masuk', 'asc')
+            ->limit(5)
+            ->get();
 
 
         // Kapasitas Kurir
@@ -65,6 +71,8 @@ class DashboardController extends Controller
 
         return view('admin.dashboard', compact(
             'paketMasukHariIni',
+            'tanggalPaketTerakhir',
+            'paketMasukTerakhir',
             'menungguPenugasan',
             'sedangDiKirim',
             'perluTindakanRetur',

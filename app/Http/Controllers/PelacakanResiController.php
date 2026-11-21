@@ -22,19 +22,21 @@ class PelacakanResiController extends Controller
         if ($resi !== '') {
             $paket = Paket::query()
                 ->where('no_resi', $resi)
-                ->with(['riwayat' => function ($query) {
-                    $query->latest('created_at')->with('pengguna');
-                }])
+                ->with([
+                    'riwayat' => function ($query) {
+                        $query->latest('created_at');
+                    }
+                ])
                 ->first();
 
             if ($paket) {
                 // Menyamarkan nomor telepon: 7 digit pertama tampil, sisanya disamarkan
                 $telepon = $paket->penerima_telepon ?? '';
-                $teleponSamar = substr($telepon, 0, 7).str_repeat('*', max(0, strlen($telepon) - 7));
+                $teleponSamar = substr($telepon, 0, 7) . str_repeat('*', max(0, strlen($telepon) - 7));
             }
         }
 
-        $zonaTarif = rescue(fn () => ZonaTarif::orderBy('kode_zona')->get(), collect());
+        $zonaTarif = rescue(fn() => ZonaTarif::orderBy('kode_zona')->get(), collect());
 
         return view('welcome', compact('paket', 'resi', 'teleponSamar', 'zonaTarif'));
     }

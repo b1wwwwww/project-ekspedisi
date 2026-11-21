@@ -20,11 +20,16 @@
     <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-4">
 
         <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-            <p class="text-[15px] font-medium text-slate-600">Paket Masuk Hari Ini</p>
+            <p class="text-[15px] font-medium text-slate-600">Paket Masuk Terakhir</p>
             <h2 class="mt-4 flex items-end gap-2 leading-none text-[#0A3656]">
-                <span class="text-[clamp(2rem,2.4vw,3rem)] font-bold tracking-[-0.04em]">{{ $paketMasukHariIni }}</span>
+                <span class="text-[clamp(2rem,2.4vw,3rem)] font-bold tracking-[-0.04em]">{{ $paketMasukTerakhir }}</span>
                 <span class="mb-1 text-[1.05rem] font-semibold">Paket</span>
             </h2>
+            @if ($tanggalPaketTerakhir)
+                <p class="mt-2 text-xs text-slate-400">
+                    Tanggal {{ \Illuminate\Support\Carbon::parse($tanggalPaketTerakhir)->translatedFormat('d M Y') }}
+                </p>
+            @endif
         </div>
 
         <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
@@ -183,7 +188,7 @@
                             <div class="mb-2 flex items-center justify-between gap-3">
                                 <div>
                                     <p class="text-sm font-semibold text-slate-800">
-                                        {{ $kurir->pengguna->name ?? 'Kurir' }}
+                                        {{ $kurir->pengguna->nama ?? 'Kurir' }}
                                     </p>
                                     <p class="text-xs text-slate-500">
                                         {{ $kurir->kode_kurir }}

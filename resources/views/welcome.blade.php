@@ -170,9 +170,6 @@
                                             <p class="text-sm font-bold text-slate-800">{{ $riwayat->status }}</p>
                                             <time class="text-xs text-slate-400 font-medium">{{ $riwayat->created_at->translatedFormat('d M Y, H:i') }} WIB</time>
                                         </div>
-                                        @if ($riwayat->pengguna)
-                                            <p class="mt-0.5 text-xs text-slate-500">Petugas: {{ $riwayat->pengguna->nama }}</p>
-                                        @endif
                                         @if ($riwayat->catatan)
                                             <p class="mt-1 text-xs text-slate-600 bg-slate-50 rounded-lg p-2.5 border border-slate-100">{{ $riwayat->catatan }}</p>
                                         @endif
