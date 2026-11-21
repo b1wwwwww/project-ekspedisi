@@ -16,8 +16,10 @@ import {
   LoadingController,
   ToastController,
 } from '@ionic/angular';
+import { timeout, TimeoutError } from 'rxjs';
 
-import { Api, PaketDetail } from '../../services/api';
+import { Api } from '../../services/api';
+import type { PaketDetail } from '../../services/api';
 
 @Component({
   selector: 'app-detail-tugas',
@@ -64,18 +66,20 @@ export class DetailTugasPage {
   }
 
   loadDetail(packageId: string): void {
-    this.api.getPaketDetail(packageId).subscribe({
+    this.api.getPaketDetail(packageId).pipe(timeout(15000)).subscribe({
       next: (response) => {
         this.paket = response.data;
         this.isLoading = false;
       },
-      error: async (error: HttpErrorResponse) => {
+      error: async (error: HttpErrorResponse | TimeoutError) => {
         this.isLoading = false;
-        this.errorMessage = error.status === 403
-          ? 'Paket ini bukan milik akun kurir Anda.'
-          : error.status === 404
-            ? 'Paket tidak ditemukan.'
-            : 'Detail paket gagal dimuat.';
+        this.errorMessage = error instanceof TimeoutError
+          ? 'Server tidak merespons dalam 15 detik. Periksa koneksi jaringan.'
+          : error.status === 403
+            ? 'Paket ini bukan milik akun kurir Anda.'
+            : error.status === 404
+              ? 'Paket tidak ditemukan.'
+              : 'Detail paket gagal dimuat.';
         await this.showToast(this.errorMessage, 'danger');
       },
     });

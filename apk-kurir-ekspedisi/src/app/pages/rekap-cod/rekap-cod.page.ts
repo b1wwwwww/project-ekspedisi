@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import type { HttpErrorResponse } from '@angular/common/http';
-import { Component, inject, OnInit } from '@angular/core';
+import type { OnInit } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import {
   IonBackButton,
@@ -16,7 +17,8 @@ import {
   ToastController,
 } from '@ionic/angular';
 
-import { Api, CodBelumDisetor } from '../../services/api';
+import type { CodBelumDisetor } from '../../services/api';
+import { Api } from '../../services/api';
 
 @Component({
   selector: 'app-rekap-cod',
@@ -48,7 +50,7 @@ export class RekapCodPage implements OnInit {
 
   constructor() {}
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.loadRekap();
   }
 

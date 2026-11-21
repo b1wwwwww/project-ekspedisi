@@ -1,10 +1,12 @@
 import { CommonModule } from '@angular/common';
-import { HttpErrorResponse } from '@angular/common/http';
+import type { HttpErrorResponse } from '@angular/common/http';
 import { Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import {
+  IonBackButton,
   IonButton,
+  IonButtons,
   IonContent,
   IonHeader,
   IonInput,
@@ -31,6 +33,8 @@ import { Api } from '../../services/api';
     IonSpinner,
     CommonModule,
     FormsModule,
+    IonBackButton,
+    IonButtons,
   ],
 })
 export class GantiPasswordPage {
@@ -44,6 +48,11 @@ export class GantiPasswordPage {
   passwordBaru = '';
   passwordKonfirmasi = '';
   isSubmitting = false;
+
+  // Kembali ke daftar tugas tanpa menghapus sesi atau token saat belum mengganti password.
+  kembali(): void {
+    void this.router.navigateByUrl('/daftar-tugas');
+  }
 
   async gantiPassword(): Promise<void> {
     // Validasi lokal sebelum mengirim permintaan penggantian password.

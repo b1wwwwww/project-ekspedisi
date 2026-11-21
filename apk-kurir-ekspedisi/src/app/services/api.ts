@@ -65,7 +65,7 @@ export class Api {
     logout(): Observable<{ message: string }> {
         return this.http.post<{ message: string }>(`${this.baseUrl}/logout`, {});
     }
-    gantiPassword(password_lama: string, password_baru: string, password_baru_confirmation: string) {
+    gantiPassword(password_lama: string, password_baru: string, password_baru_confirmation: string): Observable<{ message: string }> {
         return this.http.post<{ message: string }>(`${this.baseUrl}/ganti-password`, {
         password_lama,
         password_baru,
@@ -80,7 +80,7 @@ export class Api {
     getPaketDetail(id: number | string): Observable<{ data: PaketDetail }> {
         return this.http.get<{ data: PaketDetail }>(`${this.baseUrl}/paket/${id}`);
     }
-    updateStatusPaket(id: number | string, status: string, catatan?: string) {
+    updateStatusPaket(id: number | string, status: string, catatan?: string): Observable<{ message: string; data: Paket }> {
         return this.http.patch<{ message: string; data: Paket }>(`${this.baseUrl}/paket/${id}/status`, {
         status,
         catatan,

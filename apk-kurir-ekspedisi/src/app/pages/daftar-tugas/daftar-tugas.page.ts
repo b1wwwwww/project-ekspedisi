@@ -14,7 +14,8 @@ import {
   ToastController,
 } from '@ionic/angular';
 
-import { Api, Paket } from '../../services/api';
+import { Api } from '../../services/api';
+import type { Paket } from '../../services/api';
 
 @Component({
   selector: 'app-daftar-tugas',
