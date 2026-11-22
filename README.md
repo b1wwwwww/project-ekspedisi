@@ -47,21 +47,21 @@ sehingga tetap sesuai dengan syarat soal.
 9. Login sebagai Admin → buka menu **Import Data Awal** → upload `pelanggan.csv`, `kurir.csv`, `paket_historis.csv` dari folder `UKK_RPL_2026-2027_CSV_Siswa/Varian_B_Ekspedisi/Data_Awal/`
 10. Jalankan seeder demo: `php artisan db:seed --class=DemoSeeder`
 
-## 4. Cara memasang APK
+## 4. cara memasang APK
 
 ### Berkas APK
 
 Berkas APK debug yang sudah dapat dipasang tersedia di:
 
 ```text
-apk/apk-kurir-ekspedisi-debug.apk
+apk/kurir-ekspedisi.apk
 ```
 
 Berkas ini disalin dari hasil build Ionic/Capacitor:
 
 ```bash
 mkdir -p apk
-cp apk-kurir-ekspedisi/android/app/build/outputs/apk/debug/app-debug.apk apk/apk-kurir-ekspedisi-debug.apk
+cp apk-kurir-ekspedisi/android/app/build/outputs/apk/debug/app-debug.apk apk/kurir-ekspedisi.apk
 ```
 
 APK mendukung Android API 26 atau Android 8.0 ke atas.
@@ -79,13 +79,13 @@ adb devices
 4. Pasang APK:
 
 ```bash
-adb install -r apk/apk-kurir-ekspedisi-debug.apk
+adb install -r apk/kurir-ekspedisi.apk
 ```
 
 Bila `adb` tidak tersedia pada PATH, gunakan jalur `platform-tools` di dalam instalasi Android SDK pada perangkat masing-masing, contoh:
 
 ```bash
-<lokasi-android-sdk>/platform-tools/adb install -r apk/apk-kurir-ekspedisi-debug.apk
+<lokasi-android-sdk>/platform-tools/adb install -r apk/kurir-ekspedisi.apk
 ```
 
 ### Memasang lewat HP tanpa kabel
@@ -128,7 +128,7 @@ cd android
 ./gradlew assembleDebug
 ```
    (bila `gradlew` tidak otomatis menemukan JDK, atur `JAVA_HOME` ke lokasi instalasi JDK pada perangkat masing-masing sebelum menjalankan perintah di atas)
-4. Pasang ulang APK hasil build terbaru ke HP sebelum sesi dimulai
+4. Copy ulang hasil build terbaru ke `apk/kurir-ekspedisi.apk`, lalu pasang ulang ke HP sebelum sesi dimulai
 
 Untuk Android emulator, gunakan alamat host khusus emulator:
 
