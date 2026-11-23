@@ -119,7 +119,6 @@
                                         type="checkbox"
                                         name="paket_id[]"
                                         value="{{ $item->id }}"
-                                        data-kurir-sebelumnya="{{ $item->kurir_id ?? '' }}"
                                         class="checkbox-paket rounded border-slate-300 text-[#0A3656]">
                                 </td>
 
