@@ -7,6 +7,31 @@
     </section>
 
     <form class="login-card" (ngSubmit)="login()">
+      <!-- Alamat API diatur di aplikasi agar APK yang sama dapat dipakai pada jaringan berbeda. -->
+      <div class="field-group">
+        <label for="serverUrl">Alamat server API</label>
+        <ion-input
+          id="serverUrl"
+          name="serverUrl"
+          [(ngModel)]="serverUrl"
+          (ngModelChange)="serverSaved = false"
+          type="url"
+          inputmode="url"
+          fill="outline"
+          placeholder="http://192.168.1.10:8000/api"
+          autocomplete="url"
+          [disabled]="isSubmitting"
+        ></ion-input>
+        @if (serverError) {
+        <ion-note color="danger" role="alert">{{ serverError }}</ion-note>
+        } @else if (serverSaved) {
+        <ion-note color="success" role="status">Alamat server tersimpan di perangkat.</ion-note>
+        }
+        <ion-button type="button" fill="clear" size="small" [disabled]="isSubmitting" (click)="saveServerUrl()">
+          Simpan Alamat
+        </ion-button>
+      </div>
+
       <div class="field-group">
         <label for="kodeKurir">Kode Kurir</label>
         <ion-input

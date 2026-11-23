@@ -5,15 +5,15 @@ const config: CapacitorConfig = {
   appName: 'apk-kurir-ekspedisi',
   webDir: 'www',
   plugins: {
-    // Use the native Android HTTP stack so requests to the local Laravel server
-    // are not blocked by WebView CORS or mixed-content behavior.
+    // Gunakan HTTP native Android agar permintaan ke server Laravel lokal tidak
+    // terhalang kebijakan CORS WebView atau konten campuran.
     CapacitorHttp: {
       enabled: true,
     },
   },
   server: {
     cleartext: true,
-    allowNavigation: ['192.168.1.10', '192.168.1.10:8000'],
+    // Host API dimasukkan pengguna saat runtime, jadi tidak diikat ke IP LAN tertentu.
   },
 };
 

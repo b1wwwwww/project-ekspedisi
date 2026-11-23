@@ -1,4 +1,5 @@
 export const environment = {
   production: false,
-  apiUrl: 'http://192.168.1.10:8000/api',
+  // URL ditentukan dari layar login dan disimpan pada perangkat.
+  apiUrl: '',
 };
