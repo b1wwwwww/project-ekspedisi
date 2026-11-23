@@ -1,4 +1,4 @@
-# Priangan Kilat Express — Sistem Ekspedisi
+# Priangan Kilat Express - Sistem Ekspedisi
 
 ## 1. Ringkasan
 Priangan Kilat Express (PKE)
@@ -47,7 +47,7 @@ sehingga tetap sesuai dengan syarat soal.
 9. Login sebagai Admin → buka menu **Import Data Awal** → upload `pelanggan.csv`, `kurir.csv`, `paket_historis.csv` dari folder `UKK_RPL_2026-2027_CSV_Siswa/Varian_B_Ekspedisi/Data_Awal/`
 10. Jalankan seeder demo: `php artisan db:seed --class=DemoSeeder`
 
-## 4. cara memasang APK
+## 4. Cara memasang APK
 
 ### Berkas APK
 
@@ -101,36 +101,11 @@ cd project-ekspedisi
 php artisan serve --host=0.0.0.0 --port=8000
 ```
 
-PC dan HP harus berada pada jaringan Wi-Fi yang sama.
+PC dan HP harus berada pada jaringan Wi-Fi yang sama. Pada halaman login APK, masukkan alamat API laptop dengan format `http://<IP-LAN-laptop>:8000/api`, lalu tekan **Simpan Alamat**. Alamat disimpan di perangkat, sehingga saat jaringan berubah cukup perbarui alamat di aplikasi; APK tidak perlu dibuild ulang.
 
-Alamat API yang dikonfigurasi saat ini adalah:
+Cek IP LAN laptop saat itu dengan `ip a` (Linux) atau `ipconfig` (Windows). Contoh alamat API: `http://192.168.1.10:8000/api`.
 
-```text
-http://192.168.1.10:8000/api
-```
-
-Konfigurasi tersebut terletak di:
-
-```text
-apk-kurir-ekspedisi/src/environments/environment.prod.ts
-```
-
-**⚠️ Penting untuk hari wawancara:** IP di atas adalah IP LAN laptop penulis saat pengerjaan. Jaringan Wi-Fi di sekolah pada hari wawancara pasti berbeda, sehingga IP ini harus dicek ulang dan APK di-build ulang sebelum demo:
-
-1. Cek IP LAN laptop saat itu: `ip a` (Linux) atau `ipconfig` (Windows)
-2. Ubah nilai `apiUrl` di `apk-kurir-ekspedisi/src/environments/environment.prod.ts` sesuai IP yang baru
-3. Build ulang:
-```bash
-cd apk-kurir-ekspedisi
-npm run build
-npx cap sync android
-cd android
-./gradlew assembleDebug
-```
-   (bila `gradlew` tidak otomatis menemukan JDK, atur `JAVA_HOME` ke lokasi instalasi JDK pada perangkat masing-masing sebelum menjalankan perintah di atas)
-4. Copy ulang hasil build terbaru ke `apk/kurir-ekspedisi.apk`, lalu pasang ulang ke HP sebelum sesi dimulai
-
-Untuk Android emulator, gunakan alamat host khusus emulator:
+Untuk Android emulator, masukkan alamat host khusus emulator pada halaman login:
 
 ```text
 http://10.0.2.2:8000/api
@@ -149,7 +124,12 @@ Pastikan `android:usesCleartextTraffic="true"` tetap aktif pada manifest Android
 - Migrasi: `database/migrations/`
 - Seeder akun & tarif awal: `database/seeders/AdminSeeder.php`, `ManagerSeeder.php`, `ZonaTarifSeeder.php` (otomatis jalan lewat `php artisan db:seed`)
 - Impor data awal CSV: lewat UI Admin (`/admin/import`), logikanya di `app/Services/Import/`
-- Seeder data demo: `database/seeders/DemoSeeder.php`, dijalankan manual dengan `php artisan db:seed --class=DemoSeeder` **setelah** impor CSV data awal
+- Seeder data demo: `database/seeders/DemoSeeder.php`, dijalankan manual setelah impor CSV data awal:
+  `php artisan db:seed --class=DemoSeeder`
+- Kurir yang disiapkan: `KUR-02`
+- Jumlah paket awal: sampai maksimum 20 paket berstatus `Dikirim` milik `KUR-02`
+- Seeder menggunakan nomor resi berawalan `PKE-DEMO-`, tidak menghapus paket impor atau paket di luar seeder, serta hanya menambah kekurangan paket hingga target 20
+- Jangan menjalankan ulang seeder setelah ada paket demo yang diproses menjadi `Terkirim`, `Gagal Kirim`, atau `Retur`, karena aksi pengujian harus dilakukan langsung di aplikasi
 - REST API Kurir: `routes/api.php`, controller di `app/Http/Controllers/Api/Kurir/`
 - Project APK Kurir: folder `apk-kurir-ekspedisi/` (Ionic + Capacitor + Angular)
 
@@ -158,7 +138,8 @@ Pastikan `android:usesCleartextTraffic="true"` tetap aktif pada manifest Android
 - Penanganan baris CSV yang tidak bisa diproses (dilewati + dilaporkan, lihat `app/Services/Import/`)
 - Penyamaran nomor telepon di cek resi (7 digit pertama + sisanya disamarkan)
 - Pelanggan generik untuk paket demo (tidak ada data pengirim di `seed_paket_dikirim.csv`)
-- **Zona tidak dikenali saat impor CSV paket historis:** jika Pusat Wilayah tidak mengenali kota tujuan saat proses impor `paket_historis.csv`, baris tersebut dilewati dan dicatat di ringkasan hasil impor (bukan diisi zona manual otomatis). Ini berbeda dari alur input paket manual, yang langsung meminta Admin memilih zona manual saat itu juga — karena saat impor CSV berjalan, tidak ada Admin yang bisa diminta mengambil keputusan untuk tiap baris secara langsung. Baris yang dilewati bisa diperiksa dan diinput ulang manual oleh Admin melalui form input paket biasa, yang sudah mendukung pilihan zona manual.
+- **Zona tidak dikenali saat impor CSV paket historis:** jika Pusat Wilayah tidak mengenali kota tujuan saat proses impor `paket_historis.csv`, baris tersebut dilewati dan dicatat di ringkasan hasil impor (bukan diisi zona manual otomatis). Ini berbeda dari alur input paket manual, yang langsung meminta Admin memilih zona manual saat itu juga, karena saat impor CSV berjalan, tidak ada Admin yang bisa diminta mengambil keputusan untuk tiap baris secara langsung. Baris yang dilewati bisa diperiksa dan diinput ulang manual oleh Admin melalui form input paket biasa, yang sudah mendukung pilihan zona manual.
+- **Alamat server APK diisi manual saat runtime** (disimpan di perangkat), bukan di-hardcode saat build. Di aplikasi produksi nyata, alamat server biasanya memakai domain tetap; pendekatan runtime ini dipilih khusus karena jaringan saat wawancara UKK tidak diketahui di muka, sehingga satu file APK yang sama (sesuai yang dikumpulkan di /apk) tetap bisa dipakai di jaringan manapun tanpa build ulang.
 
 ## 8. Lembar self-check
 
@@ -191,6 +172,8 @@ Pastikan `android:usesCleartextTraffic="true"` tetap aktif pada manifest Android
 
 ## 9. Belum selesai / keterbatasan
 Seluruh 14 butir penerimaan wajib sudah berjalan dan diuji sesuai langkah di atas. Kelima fitur opsional (O1–O5) belum dikerjakan pada versi ini.
+
+ERD (docs/erd/ERD-Ekspedisi.png) belum mencantumkan kolom kode_zona di tabel zona_tarif dan tabel urutan_resi, karena keduanya ditambahkan setelah ERD awal digambar (untuk kebutuhan pencocokan zona dari API Pusat Wilayah dan penomoran resi harian). Fungsinya sudah berjalan di kode, hanya gambar ERD yang belum disinkronkan ulang.
 
 ## 10. Referensi dan Bantuan
 
