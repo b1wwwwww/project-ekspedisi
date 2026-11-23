@@ -175,6 +175,8 @@ Seluruh 14 butir penerimaan wajib sudah berjalan dan diuji sesuai langkah di ata
 
 ERD (docs/erd/ERD-Ekspedisi.png) belum mencantumkan kolom kode_zona di tabel zona_tarif dan tabel urutan_resi, karena keduanya ditambahkan setelah ERD awal digambar (untuk kebutuhan pencocokan zona dari API Pusat Wilayah dan penomoran resi harian). Fungsinya sudah berjalan di kode, hanya gambar ERD yang belum disinkronkan ulang.
 
+ERD juga belum mencantumkan tabel `personal_access_tokens` dari migrasi `database/migrations/2026_11_20_170329_create_personal_access_tokens_table.php`. Tabel ini digunakan Laravel Sanctum untuk menyimpan token autentikasi API APK Kurir dan dibuat saat menjalankan `php artisan migrate`.
+
 ## 10. Referensi dan Bantuan
 
 Dalam proses pengembangan Sistem Informasi Manajemen Ekspedisi Priangan Kilat Express, saya memanfaatkan beberapa sumber referensi dan alat bantu untuk mendukung proses pembelajaran, perancangan, implementasi, serta penyelesaian kendala teknis.
