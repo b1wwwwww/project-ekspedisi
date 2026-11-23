@@ -142,7 +142,7 @@ Route::middleware(['auth', 'wajib.ganti.password'])->group(function () {
         Route::patch('/admin/kurir/{kurir}/status', [KurirController::class, 'toggleStatus'])
             ->name('admin.kurir.toggle-status');
 
-        // Sementara hanya menerima CSV pelanggan; importer lain akan ditambahkan pada tahap berikutnya.
+        // Impor data awal pelanggan, kurir, dan paket historis secara berurutan.
         Route::get('/admin/import', [ImportDataController::class, 'index'])
             ->name('admin.import.index');
 
