@@ -22,15 +22,16 @@ class PenugasanKurirController extends Controller
                 $query->orderBy('created_at', 'desc');
             },
         ])
-        ->where(function ($query) {
-            $query->where(function ($query) {
-                $query->where('status', 'Transit')
-                    ->whereNull('kurir_id');
-            })->orWhere(function ($query) {
-                $query->where('status', 'Gagal Kirim')
-                    ->where('jumlah_gagal', 1);
+            ->where(function ($query) {
+                $query->where(function ($query) {
+                    // Semua paket Transit siap ditugaskan, terlepas dari kurir_id lama
+                    // yang mungkin berasal dari impor atau data historis.
+                    $query->where('status', 'Transit');
+                })->orWhere(function ($query) {
+                    $query->where('status', 'Gagal Kirim')
+                        ->where('jumlah_gagal', 1);
+                });
             });
-        });
 
         // Filter berdasarkan zona tarif.
         if ($request->filled('zona') && $request->zona !== 'ALL') {
@@ -99,8 +100,8 @@ class PenugasanKurirController extends Controller
             // Memeriksa kelayakan setiap paket.
             foreach ($paket as $item) {
 
-                $siapDitugaskan =
-                    $item->status === 'Transit' && $item->kurir_id === null;
+                // Paket Transit siap ditugaskan walau masih menyimpan kurir_id lama.
+                $siapDitugaskan = $item->status === 'Transit';
 
                 $siapDitugaskanUlang =
                     $item->status === 'Gagal Kirim' && $item->jumlah_gagal == 1;
@@ -111,7 +112,7 @@ class PenugasanKurirController extends Controller
                     ]);
                 }
 
-            
+
             }
 
             // Menghitung kapasitas kurir yang sedang digunakan.

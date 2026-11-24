@@ -16,7 +16,9 @@ use Illuminate\Support\Facades\DB;
 
 class PaketHistorisImporter
 {
-    public function __construct(private PusatWilayahService $pusatWilayahService) {}
+    public function __construct(private PusatWilayahService $pusatWilayahService)
+    {
+    }
 
     /**
      * Mengimpor paket historis tanpa membuat data pengirim atau zona yang tidak valid.
@@ -98,26 +100,30 @@ class PaketHistorisImporter
             }
 
             $teleponRapi = TeleponNormalizer::normalize($teleponPenerima);
-            $beratTidakTersedia = ! is_numeric($beratKg) || (float) $beratKg <= 0;
+            $beratTidakTersedia = !is_numeric($beratKg) || (float) $beratKg <= 0;
             $beratAktual = $beratTidakTersedia ? 0 : (float) $beratKg;
             $beratTagih = $beratTidakTersedia ? 0 : max(1, ceil($beratAktual));
             $tarifPerKg = (float) $zonaTarif->harga_per_kg;
             $ongkir = $beratTidakTersedia ? 0 : $beratTagih * $tarifPerKg;
 
-            if ($layanan === 'Express' && ! $beratTidakTersedia) {
+            if ($layanan === 'Express' && !$beratTidakTersedia) {
                 $ongkir *= 1.5;
             }
 
             $nilaiCod = is_numeric($nilaiCod) ? (float) $nilaiCod : 0;
             $biayaCod = $nilaiCod > 0 ? max($nilaiCod * 0.02, 2000) : 0;
 
-            DB::transaction(function () use ($noResi, $tanggalTerima, $pengirim, $kurir, $penggunaId, $zonaTarif, $namaPenerima, $teleponRapi, $kotaTujuan, $beratAktual, $beratTagih, $tarifPerKg, $ongkir, $layanan, $nilaiCod, $biayaCod, $status, $beratTidakTersedia): void {
+            $kurirId = in_array($status, ['Diterima', 'Transit'], true) ? null : $kurir->id;
+
+            DB::transaction(function () use ($noResi, $tanggalTerima, $pengirim, $kurir, $kurirId, $penggunaId, $zonaTarif, $namaPenerima, $teleponRapi, $kotaTujuan, $beratAktual, $beratTagih, $tarifPerKg, $ongkir, $layanan, $nilaiCod, $biayaCod, $status, $beratTidakTersedia): void {
                 $paket = Paket::updateOrCreate(
                     ['no_resi' => trim($noResi)],
                     [
                         'tanggal_masuk' => Carbon::parse($tanggalTerima)->toDateString(),
                         'pengirim_id' => $pengirim->id,
-                        'kurir_id' => $kurir->id,
+                        // Paket Diterima/Transit belum ditugaskan; Kurir hanya
+                        // ditautkan setelah status berubah menjadi Dikirim.
+                        'kurir_id' => $kurirId,
                         'dibuat_oleh' => $penggunaId,
                         'zona_tarif_id' => $zonaTarif->id,
                         // CSV historis tidak menyediakan alamat penerima; tanda ini membedakannya dari alamat yang benar-benar diketahui.
@@ -153,7 +159,7 @@ class PaketHistorisImporter
                 );
 
                 // Paket historis berstatus Terkirim dianggap sudah disetor sejak awal.
-                if ($status === 'Terkirim' && $nilaiCod > 0 && ! DetailSetoranCod::where('paket_id', $paket->id)->exists()) {
+                if ($status === 'Terkirim' && $nilaiCod > 0 && !DetailSetoranCod::where('paket_id', $paket->id)->exists()) {
                     $setoran = SetoranCod::create([
                         'kurir_id' => $kurir->id,
                         'dicatat_oleh' => $penggunaId,
@@ -193,15 +199,15 @@ class PaketHistorisImporter
         mixed $status,
         mixed $kodeKurir,
     ): ?string {
-        if (! is_string($noResi) || blank($noResi)) {
+        if (!is_string($noResi) || blank($noResi)) {
             return 'nomor resi tidak tersedia.';
         }
 
-        if (! is_string($tanggalTerima) || ! $this->tanggalValid($tanggalTerima)) {
+        if (!is_string($tanggalTerima) || !$this->tanggalValid($tanggalTerima)) {
             return 'tanggal terima tidak valid.';
         }
 
-        if (! is_string($namaPengirim) || blank($namaPengirim) || ! is_string($namaPenerima) || blank($namaPenerima)) {
+        if (!is_string($namaPengirim) || blank($namaPengirim) || !is_string($namaPenerima) || blank($namaPenerima)) {
             return 'nama pengirim atau penerima tidak tersedia.';
         }
 
@@ -209,15 +215,15 @@ class PaketHistorisImporter
             return 'nomor telepon penerima tidak valid.';
         }
 
-        if (! is_string($kotaTujuan) || blank($kotaTujuan) || ! in_array($layanan, ['Reguler', 'Express'], true)) {
+        if (!is_string($kotaTujuan) || blank($kotaTujuan) || !in_array($layanan, ['Reguler', 'Express'], true)) {
             return 'kota tujuan atau layanan tidak valid.';
         }
 
-        if (! in_array($status, ['Diterima', 'Transit', 'Dikirim', 'Terkirim', 'Gagal Kirim', 'Retur'], true)) {
+        if (!in_array($status, ['Diterima', 'Transit', 'Dikirim', 'Terkirim', 'Gagal Kirim', 'Retur'], true)) {
             return 'status tidak valid.';
         }
 
-        if (! is_string($kodeKurir) || blank($kodeKurir)) {
+        if (!is_string($kodeKurir) || blank($kodeKurir)) {
             return 'kode kurir tidak tersedia.';
         }
 
